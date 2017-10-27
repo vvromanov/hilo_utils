@@ -1,10 +1,9 @@
-#include <gmock/gmock.h>
 #include <log.h>
 #include <counters.h>
-#include <execinfo.h>
 #include <file_utils.h>
 #include <HistoryCounters.h>
 #include "LogStorage.h"
+#include "gtest/gtest.h"
 
 #define TEST_SUFFIX "_test"
 
