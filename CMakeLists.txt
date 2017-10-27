@@ -50,3 +50,6 @@ add_library(${TARGET} STATIC
         src/LogStorage.cpp
         src/LogStorage.h
         )
+
+add_subdirectory(test_main)
+add_subdirectory(tests)
