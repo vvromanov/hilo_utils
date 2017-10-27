@@ -15,6 +15,7 @@ int main(int argc, char **argv) {
     remove_test_file(SHM_LOCATION COUNTERS_SHM_NAME_HISTORY TEST_SUFFIX);
     remove_test_file(SHM_LOCATION LOG_STORAGE_SHM_NAME TEST_SUFFIX);
     remove_test_file(SHM_LOCATION LOG_COUNTERS_SHM_NAME TEST_SUFFIX);
+    ::testing::InitGoogleTest(&argc, argv);
     ::testing::FLAGS_gtest_death_test_style = "threadsafe";
     ScopedLogLevel ll(LOG_LEVEL_ERR);
     int retcode = RUN_ALL_TESTS();
