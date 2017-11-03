@@ -4,6 +4,8 @@
 #include <sstream>
 #include <cctype>
 #include <algorithm>
+#include <vector>
+#include <string>
 #include <netinet/in.h>
 
 #define BZERO_S(some_struct) memset(&(some_struct), 0, sizeof(some_struct))
@@ -67,3 +69,4 @@ static inline std::string &trim(std::string &s) {
 }
 
 std::string ReplaceAll(std::string subject, const std::string& search, const std::string& replace);
+std::vector<std::string> split(const std::string &s, char delim);
