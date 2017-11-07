@@ -297,6 +297,11 @@ public:
         return GetData()->GetBeginVptr();
     }
 
+    vptr_t GetLastVptr() {
+        SHM_READ_LOCK;
+        return GetData()->GetLastVptr();
+    }
+
     vptr_t GetEndVptr() {
         SHM_READ_LOCK;
         return GetData()->GetEndVptr();
