@@ -8,6 +8,11 @@
 #include <string>
 #include <netinet/in.h>
 
+/* https://stackoverflow.com/questions/12648988/converting-a-defined-constant-number-to-a-string */
+
+#define TO_STRING_(x) #x
+#define TO_STRING(x) TO_STRING_(x)
+
 #define BZERO_S(some_struct) memset(&(some_struct), 0, sizeof(some_struct))
 #define STRNCPY(destination, source) do { strncpy((destination), (source), sizeof(destination)); destination[sizeof(destination)-1]=0;} while (0)
 #define STRNCAT(destination, source) do { strncat((destination), (source), sizeof(destination) - strlen(destination) - 1); destination[sizeof(destination)-1]=0;} while (0)
