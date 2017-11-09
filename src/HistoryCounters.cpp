@@ -107,7 +107,7 @@ void HistoryCounters::Dump(std::ostream &s, const char *prefix, counters_format_
                 s << std::endl;
                 break;
             case format_raw:
-                if (0 != strcmp(Lookup(index_info.index[i].id), prefix)) {
+                if (0 != strcasecmp(Lookup(index_info.index[i].id), prefix)) {
                     continue;
                 }
                 s << c->GetLastCount();

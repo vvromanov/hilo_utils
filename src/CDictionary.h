@@ -58,7 +58,7 @@ template<uint32_t DictionarySize, uint32_t DictionaryStorageSize>
 bool CDictionary<DictionarySize, DictionaryStorageSize>::compare(
         const typename CDictionary<DictionarySize, DictionaryStorageSize>::name_rec_t &r,
         const typename CDictionary<DictionarySize, DictionaryStorageSize>::search_rec_t &t) {
-    return strcmp(t.dict.Lookup(r.id), t.name) < 0;
+    return strcasecmp(t.dict.Lookup(r.id), t.name) < 0;
 }
 
 template<uint32_t DictionarySize, uint32_t DictionaryStorageSize>
@@ -80,7 +80,7 @@ CDictionary<DictionarySize, DictionaryStorageSize>::Add(const char *name) {
     search_rec_t r = {*this, name};
     name_rec_t *p = std::lower_bound(index_info.index, index_info.index + index_info.count, r, compare);
     if (p != (index_info.index + index_info.count)) {
-        if (strcmp(names_storage + p->name_offset, name) == 0) {
+        if (strcasecmp(names_storage + p->name_offset, name) == 0) {
             return p->id;
         }
         memmove(p + 1, p, ((index_info.index + index_info.count) - p) * sizeof(*p));
@@ -98,7 +98,7 @@ typename CDictionary<DictionarySize, DictionaryStorageSize>::index_t
 CDictionary<DictionarySize, DictionaryStorageSize>::Lookup(const char *name) const {
     search_rec_t r = {*this, name};
     const name_rec_t *p = std::lower_bound(index_info.index, index_info.index + index_info.count, r, compare);
-    if (p != (index_info.index + index_info.count) && strcmp(names_storage + p->name_offset, name) == 0) {
+    if (p != (index_info.index + index_info.count) && strcasecmp(names_storage + p->name_offset, name) == 0) {
         return p->id;
     } else {
         return DICTIONARY_INVALID_INDEX;
