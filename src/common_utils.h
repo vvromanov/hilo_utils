@@ -50,6 +50,16 @@ bool ConvertString(const char *data, T &value) {
     return true;
 }
 
+bool ConvertString(const char *s, uint64_t &value);
+bool ConvertStringHex(const char *data, uint64_t &value);
+bool ConvertString(const char *s, int64_t &value);
+bool ConvertString(const char *s, int8_t &value);
+bool ConvertString(const char *s, uint8_t &value);
+bool ConvertString(const char *s, int16_t &value);
+bool ConvertString(const char *s, uint16_t &value);
+bool ConvertString(const char *s, int32_t &value);
+bool ConvertString(const char *s, uint32_t &value);
+
 bool ConvertString(const char *data, bool &value);
 bool ConvertStringIp(const char *data, in_addr_t &ip_network);
 bool ConvertStringTime(const char *data, time_t& time);

@@ -8,6 +8,7 @@ include_directories(
 )
 
 add_executable(${TARGET}
+        Convert.cpp
         Log_test.cpp
         ShmBufferEx_Test.cpp
         ShmBuffer_Test.cpp
