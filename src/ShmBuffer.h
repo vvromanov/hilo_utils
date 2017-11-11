@@ -95,10 +95,6 @@ public:
     }
 
     bool IsEmpty() {
-        SHM_READ_LOCK;
         return GetData()->is_empty();
     }
 };
-
-
-

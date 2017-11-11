@@ -5,6 +5,8 @@
 #include "ShmChunks.h"
 #include "counters_base.h"
 #include "HistoryCounters.h"
+#include "HistoryCounterLocal.h"
+#include "Status.h"
 
 #define INVALID_VPTR -1
 
@@ -39,11 +41,13 @@ public:
             volatile uint64_t head_offset;
             volatile uint64_t tail_offset;
             volatile shm_record_size_t last_record_size;
-            volatile uint64_t drop_count;
+            volatile uint64_t drop_msg_count;
+            volatile uint64_t drop_msg_volume;
             volatile uint64_t total_count;
             volatile uint64_t count;
             on_overflov_t on_overflow;
             reader_info_t reader[MaxReaderCount];
+            bool drop_is_ok;
         };
         uint8_t fill_page[MEM_PAGE_SIZE];
     };
@@ -54,7 +58,8 @@ public:
         head = tail = 0;
         head_offset = tail_offset = 0;
         last_record_size = 0;
-        drop_count = 0;
+        drop_msg_count = 0;
+        drop_msg_volume = 0;
         count = 0;
         total_count = 0;
         on_overflow = return_error;
@@ -162,6 +167,12 @@ public:
         return (const ShmBufferRecord *) (circular_data + (vptr - head_offset));
     }
 
+    void TransferDrops(HistoryCounter &c) {
+        c.AddBatch(drop_msg_count, drop_msg_volume);
+        drop_msg_count = 0;
+        drop_msg_volume = 0;
+    }
+
 protected:
     const ShmBufferRecord *getFirstRecord() {
         return (const ShmBufferRecord *) peek();
@@ -176,7 +187,8 @@ protected:
         if (rec == NULL) {
             return false;
         }
-        ++drop_count;
+        ++drop_msg_count;
+        drop_msg_volume += rec->Size();
         --count;
         free(rec->Size());
         return true;
@@ -194,6 +206,15 @@ protected:
 
 
 class ShmBufferEx : public ShmSimple<ShmBufferExData> {
+    HistoryCounter cPushHistory;
+    HistoryCounter cPopHistory;
+    HistoryCounter cPushFailedHistory;
+    HistoryCounter cDropHistory;
+    HistoryCounterLocal cPushLocal;
+    HistoryCounterLocal cPushFailedLocal;
+    HistoryCounterLocal cPopLocal;
+
+    LazyCounter cMsgCount;
 public:
     bool Open(const char *name, size_t size);
 
@@ -205,6 +226,16 @@ public:
     size_t Capacity() {
         SHM_READ_LOCK;
         return GetData()->capacity();
+    }
+
+    size_t DataSize() {
+        SHM_READ_LOCK;
+        return GetData()->data_size();
+    }
+
+    size_t DropCount() {
+        SHM_READ_LOCK;
+        return GetData()->drop_msg_count;
     }
 
 #ifdef FOR_TEST
@@ -220,11 +251,6 @@ public:
             return GetData()->read(d, data_size);
         }
 
-        size_t DataSize() {
-            SHM_READ_LOCK
-            return GetData()->data_size();
-        }
-
         void Free(size_t s) {
             SHM_WRITE_LOCK;
             GetData()->free(s);
@@ -236,26 +262,36 @@ public:
 
 #endif
 
-    void SetOverflovBehavior(on_overflov_t d) {
+    void SetOverflovBehavior(on_overflov_t d, bool drop_is_ok) {
         SHM_WRITE_LOCK;
         GetData()->on_overflow = d;
+        GetData()->drop_is_ok = drop_is_ok;
     }
 
     uint64_t Count() {
         return GetData()->count;
     }
 
-    uint64_t DropCount() {
-        return GetData()->drop_count;
-    }
+//    uint64_t DropCount() {
+//        return GetData()->drop_count;
+//    }
 
     uint64_t TotalCount() {
         return GetData()->total_count;
     }
 
     bool Add(const ShmChunks &chunks) {
-        SHM_WRITE_LOCK;
-        return GetData()->Add(chunks);
+        ++cPushLocal;
+        bool res;
+        {
+            SHM_WRITE_LOCK;
+            res = GetData()->Add(chunks);
+        }
+        if (!res) {
+            ++cPushFailedLocal;
+            return false;
+        }
+        return true;
     }
 
     bool Add(const uint8_t *data, shm_record_size_t size) {
@@ -263,21 +299,25 @@ public:
     }
 
     bool GetFirst(uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size, bool delete_record = true) {
+        ++cPopLocal;
         SHM_WRITE_LOCK;
         return GetData()->GetFirst(data, max_size, size, delete_record);
     }
 
     bool Get(vptr_t &pos, direction_t dir, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
+        ++cPopLocal;
         SHM_WRITE_LOCK;
         return GetData()->Get(pos, dir, data, max_size, size);
     }
 
     bool Get(vptr_t &pos, vptr_t &lost, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
+        ++cPopLocal;
         SHM_WRITE_LOCK;
         return GetData()->Get(pos, lost, data, max_size, size);
     }
 
     bool Get(int reader_index, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
+        ++cPopLocal;
         SHM_WRITE_LOCK;
         return GetData()->Get(reader_index, data, max_size, size);
     }
@@ -288,7 +328,6 @@ public:
     }
 
     bool IsEmpty() {
-        SHM_READ_LOCK;
         return GetData()->is_empty();
     }
 
@@ -317,6 +356,10 @@ public:
         return GetData()->GetPrevVptr(pos);
     }
 
+    static void DumpStatHeader(std::ostream &s);
+    void DumpStat(std::ostream &s);
+    status_t CheckStatus(std::ostream &s, status_format_t format);
+    void UpdateCounters();
 };
 
 

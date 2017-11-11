@@ -1,4 +1,6 @@
+#include <iomanip>
 #include "ShmBufferEx.h"
+#include "DumpUtils.h"
 
 bool ShmBufferEx::Open(const char *name, size_t _size) {
     if (_size) {
@@ -7,7 +9,94 @@ bool ShmBufferEx::Open(const char *name, size_t _size) {
     if (!ShmSimple<ShmBufferExData>::OpenMirror(name, _size, sizeof(ShmBufferExData))) {
         return false;
     }
+    char cName[NAME_MAX];
+    STRNCPY(cName, "shm.queue.");
+    STRNCAT(cName, name);
+    char *end = cName + strlen(cName);
+    strcpy(end, ".Pop");
+    cPopHistory.SetName(cName, HistoryVolume);
+    strcpy(end, ".Push");
+    cPushHistory.SetName(cName, HistoryVolume);
+    strcpy(end, ".error.PushFailed");
+    cPushFailedHistory.SetName(cName, HistoryCount);
+    strcpy(end, ".error.drops");
+    cDropHistory.SetName(cName, HistoryCount);
+    strcpy(end, ".message_count");
+    cMsgCount.SetName(cName, counter_value);
+
     return true;
+}
+
+void ShmBufferEx::UpdateCounters() {
+    cPushLocal.TransferTo(cPushHistory);
+    cPushFailedLocal.TransferTo(cPushFailedHistory);
+    cPopLocal.TransferTo(cPopHistory);
+    cMsgCount = Count();
+    SHM_WRITE_LOCK;
+    GetData()->TransferDrops(cDropHistory);
+}
+
+status_t ShmBufferEx::CheckStatus(std::ostream &s, status_format_t format) {
+    status_t status = status_ok;
+    int full = (DataSize() * 100 / Capacity());
+    if (format == status_nagios || full > 80) {
+        s << "Queue " << name << " " << full << "% full" << std::endl;
+    }
+    if (full > 80) {
+        status = status_warning;
+    }
+    if (full > 90) {
+        status = status_critical;
+    }
+    bool drop_is_ok = GetData()->drop_is_ok;
+    if ((cPushFailedHistory.GetIntervalCount() + drop_is_ok ? 0 : cDropHistory.GetIntervalCount()) > 0) {
+        if ((cPushFailedHistory.GetLastCount() + drop_is_ok ? 0 : cDropHistory.GetLastCount()) > 0) {
+            s << "Queue " << name << " now has errors" << std::endl;
+            status = std::max(status, status_critical);
+        } else {
+            s << "Queue " << name << " has errors in last " << HistoryCounterData::HistorySize << " seconds"
+              << std::endl;
+            status = std::max(status, status_warning);
+        }
+    }
+    return status;
+}
+
+void ShmBufferEx::DumpStatHeader(std::ostream &s) {
+    s << '|' << std::setw(20) << "Queue" << "|Msg in|       |    cps      |5 min avg cps|    Total    |";
+    s << std::endl;
+    s << '|' << std::setw(20) << " Name" << "| queue| Used %|MsgSnt|Errors|MsgSnt|Errors|MsgSnt|Errors|";
+    s << std::endl;
+}
+
+void ShmBufferEx::DumpStat(std::ostream &s) {
+    s << '|' << std::setw(20) << name;
+    s << '|';
+    DumpNumber(s, Count(), 6);
+    s << '|';
+    int full = (DataSize() * 10000 / Capacity());
+    s << std::setw(3) << full / 100 << '.' << std::setw(2) << std::setfill('0')
+      << full % 100 << '%' << std::setfill(' ');
+
+    bool drop_is_ok = GetData()->drop_is_ok;
+    s << '|';
+    DumpNumber(s, cPopHistory.GetLastCount(), 6);
+    s << '|';
+    DumpNumber(s, (cPushFailedHistory.GetLastCount() + drop_is_ok ? 0 : cDropHistory.GetLastCount()), 6);
+
+    s << '|';
+    DumpNumber(s, cPopHistory.GetIntervalCount() / HistoryCounterData::HistorySize, 6);
+    s << '|';
+    DumpNumber(s, (cPushFailedHistory.GetIntervalCount() + drop_is_ok ? 0 : cDropHistory.GetIntervalCount()) /
+                  HistoryCounterData::HistorySize,
+               6);
+
+    s << '|';
+    DumpNumber(s, cPopHistory.GetTotalCount(), 6);
+    s << '|';
+    DumpNumber(s, cPushFailedHistory.GetTotalCount() + drop_is_ok ? 0 : cDropHistory.GetTotalCount(), 6);
+    s << '|';
+    s << std::endl;
 }
 
 bool ShmBufferExData::write(const uint8_t *d, size_t _size) {
@@ -50,7 +139,8 @@ bool ShmBufferExData::Add(const ShmChunks &chunks) {
             case return_error:
                 return false;
             case drop_new:
-                ++drop_count;
+                ++drop_msg_count;
+                drop_msg_volume += rec_size;
                 return true;
             case drop_old:
                 if (!dropFirstRecords(rec_size)) {
@@ -159,7 +249,7 @@ bool ShmBufferExData::Get(int reader_index, uint8_t *data, shm_record_size_t max
     const vptr_t begin = GetBeginVptr();
     const vptr_t end = GetEndVptr();
     const vptr_t last = GetLastVptr();
-    (void)end;
+    (void) end;
     reader_info_t &r = reader[reader_index];
     if (r.pos < begin) {
         r.lost += begin - r.pos;

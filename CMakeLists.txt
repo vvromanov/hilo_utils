@@ -18,6 +18,7 @@ add_library(${TARGET} STATIC
         src/DumpUtils.h
         src/file_utils.h
         src/file_utils.cpp
+        src/Status.cpp
 
         #Shared Memory
         src/ShmBase.h
