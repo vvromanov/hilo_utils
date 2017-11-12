@@ -21,7 +21,7 @@ int64_t getClockUs(void) {
 #ifdef CYGWIN
     clock_gettime(CLOCK_REALTIME, &val);
 #else
-    clock_gettime(CLOCK_MONOTONIC_COARSE, &val);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &val);
 #endif
     return val.tv_sec * ((int64_t) 1000000) + val.tv_nsec/1000;
 }

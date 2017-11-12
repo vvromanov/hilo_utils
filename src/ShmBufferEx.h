@@ -41,9 +41,14 @@ public:
             volatile uint64_t head_offset;
             volatile uint64_t tail_offset;
             volatile shm_record_size_t last_record_size;
-            volatile uint64_t drop_msg_count;
-            volatile uint64_t drop_msg_volume;
-            volatile uint64_t total_count;
+            volatile uint64_t tmp_drop_msg_count;
+            volatile uint64_t tmp_drop_msg_volume;
+            volatile uint64_t total_drop_msg_count;
+            volatile uint64_t total_drop_msg_volume;
+            volatile uint64_t tmp_msg_count;
+            volatile uint64_t tmp_msg_volume;
+            volatile uint64_t total_msg_count;
+            volatile uint64_t total_msg_volume;
             volatile uint64_t count;
             on_overflov_t on_overflow;
             reader_info_t reader[MaxReaderCount];
@@ -58,10 +63,17 @@ public:
         head = tail = 0;
         head_offset = tail_offset = 0;
         last_record_size = 0;
-        drop_msg_count = 0;
-        drop_msg_volume = 0;
+        tmp_drop_msg_count = 0;
+        tmp_drop_msg_volume = 0;
+        total_drop_msg_count = 0;
+        total_drop_msg_volume = 0;
+        tmp_msg_count = 0;
+        tmp_msg_volume = 0;
         count = 0;
-        total_count = 0;
+        total_msg_count = 0;
+        total_msg_volume = 0;
+        total_msg_count = 0;
+        total_msg_volume = 0;
         on_overflow = return_error;
         memset(reader, 0, sizeof(reader));
     }
@@ -168,9 +180,15 @@ public:
     }
 
     void TransferDrops(HistoryCounter &c) {
-        c.AddBatch(drop_msg_count, drop_msg_volume);
-        drop_msg_count = 0;
-        drop_msg_volume = 0;
+        c.AddBatch(tmp_drop_msg_count, tmp_drop_msg_volume);
+        tmp_drop_msg_count = 0;
+        tmp_drop_msg_volume = 0;
+    }
+
+    void TransferMsg(HistoryCounter &c) {
+        c.AddBatch(tmp_msg_count, tmp_msg_volume);
+        tmp_msg_count = 0;
+        tmp_msg_volume = 0;
     }
 
 protected:
@@ -187,8 +205,10 @@ protected:
         if (rec == NULL) {
             return false;
         }
-        ++drop_msg_count;
-        drop_msg_volume += rec->Size();
+        ++tmp_drop_msg_count;
+        ++total_drop_msg_count;
+        tmp_drop_msg_volume += rec->Size();
+        total_drop_msg_volume += rec->Size();
         --count;
         free(rec->Size());
         return true;
@@ -206,13 +226,10 @@ protected:
 
 
 class ShmBufferEx : public ShmSimple<ShmBufferExData> {
-    HistoryCounter cPushHistory;
-    HistoryCounter cPopHistory;
+    HistoryCounter cMsgHistory;
     HistoryCounter cPushFailedHistory;
     HistoryCounter cDropHistory;
-    HistoryCounterLocal cPushLocal;
     HistoryCounterLocal cPushFailedLocal;
-    HistoryCounterLocal cPopLocal;
 
     LazyCounter cMsgCount;
 public:
@@ -235,7 +252,7 @@ public:
 
     size_t DropCount() {
         SHM_READ_LOCK;
-        return GetData()->drop_msg_count;
+        return GetData()->total_drop_msg_count;
     }
 
 #ifdef FOR_TEST
@@ -272,16 +289,11 @@ public:
         return GetData()->count;
     }
 
-//    uint64_t DropCount() {
-//        return GetData()->drop_count;
-//    }
-
     uint64_t TotalCount() {
-        return GetData()->total_count;
+        return GetData()->total_msg_count;
     }
 
     bool Push(const ShmChunks &chunks) {
-        ++cPushLocal;
         bool res;
         {
             SHM_WRITE_LOCK;
@@ -299,25 +311,21 @@ public:
     }
 
     bool GetFirst(uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size, bool delete_record = true) {
-        ++cPopLocal;
         SHM_WRITE_LOCK;
         return GetData()->GetFirst(data, max_size, size, delete_record);
     }
 
     bool Get(vptr_t &pos, direction_t dir, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
-        ++cPopLocal;
         SHM_WRITE_LOCK;
         return GetData()->Get(pos, dir, data, max_size, size);
     }
 
     bool Get(vptr_t &pos, vptr_t &lost, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
-        ++cPopLocal;
         SHM_WRITE_LOCK;
         return GetData()->Get(pos, lost, data, max_size, size);
     }
 
     bool Get(int reader_index, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
-        ++cPopLocal;
         SHM_WRITE_LOCK;
         return GetData()->Get(reader_index, data, max_size, size);
     }

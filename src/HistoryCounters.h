@@ -115,15 +115,31 @@ public:
         return d->GetIntervalCount();
     }
 
+    int64_t GetIntervalVolume() {
+        Init();
+        return d->GetIntervalVolume();
+    }
+
     int64_t GetLastCount() {
         Init();
         return d->GetLastCount();
+    }
+
+    int64_t GetLastVolume() {
+        Init();
+        return d->GetLastVolume();
     }
 
     int64_t GetTotalCount() {
         Init();
         return d->GetTotalCount();
     }
+
+    int64_t GetTotalVolume() {
+        Init();
+        return d->GetTotalVolume();
+    }
+
     void Init() {
         if (nullptr == d) {
             d = GetHistoryCounters().GetCounterPtr(name.c_str());

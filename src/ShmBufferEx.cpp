@@ -13,11 +13,9 @@ bool ShmBufferEx::Open(const char *name, size_t _size) {
     STRNCPY(cName, "shm.queue.");
     STRNCAT(cName, name);
     char *end = cName + strlen(cName);
-    strcpy(end, ".Pop");
-    cPopHistory.SetName(cName, HistoryVolume);
+    strcpy(end, ".Msg");
+    cMsgHistory.SetName(cName, HistoryVolume);
     strcpy(end, ".Push");
-    cPushHistory.SetName(cName, HistoryVolume);
-    strcpy(end, ".error.PushFailed");
     cPushFailedHistory.SetName(cName, HistoryCount);
     strcpy(end, ".error.drops");
     cDropHistory.SetName(cName, HistoryCount);
@@ -28,12 +26,10 @@ bool ShmBufferEx::Open(const char *name, size_t _size) {
 }
 
 void ShmBufferEx::UpdateCounters() {
-    cPushLocal.TransferTo(cPushHistory);
-    cPushFailedLocal.TransferTo(cPushFailedHistory);
-    cPopLocal.TransferTo(cPopHistory);
     cMsgCount = Count();
     SHM_WRITE_LOCK;
     GetData()->TransferDrops(cDropHistory);
+    GetData()->TransferMsg(cMsgHistory);
 }
 
 status_t ShmBufferEx::CheckStatus(std::ostream &s, status_format_t format) {
@@ -63,9 +59,9 @@ status_t ShmBufferEx::CheckStatus(std::ostream &s, status_format_t format) {
 }
 
 void ShmBufferEx::DumpStatHeader(std::ostream &s) {
-    s << '|' << std::setw(20) << "Queue" << "|Msg in|       |    cps      |5 min avg cps|    Total    |";
+    s << '|' << std::setw(20) << "Queue" << "|Msg in|       |       cps          |    5 min avg cps   |       Total        |";
     s << std::endl;
-    s << '|' << std::setw(20) << " Name" << "| queue| Used %|MsgSnt|Errors|MsgSnt|Errors|MsgSnt|Errors|";
+    s << '|' << std::setw(20) << " Name" << "| queue| Used %|MsgSnt|Volume|Errors|MsgSnt|Volume|Errors|MsgSnt|Volume|Errors|";
     s << std::endl;
 }
 
@@ -80,19 +76,25 @@ void ShmBufferEx::DumpStat(std::ostream &s) {
 
     bool drop_is_ok = GetData()->drop_is_ok;
     s << '|';
-    DumpNumber(s, cPushHistory.GetLastCount(), 6);
+    DumpNumber(s, cMsgHistory.GetLastCount(), 6);
+    s << '|';
+    DumpNumber(s, cMsgHistory.GetLastVolume(), 6);
     s << '|';
     DumpNumber(s, (cPushFailedHistory.GetLastCount() + drop_is_ok ? 0 : cDropHistory.GetLastCount()), 6);
 
     s << '|';
-    DumpNumber(s, cPushHistory.GetIntervalCount() / HistoryCounterData::HistorySize, 6);
+    DumpNumber(s, cMsgHistory.GetIntervalCount() / HistoryCounterData::HistorySize, 6);
+    s << '|';
+    DumpNumber(s, cMsgHistory.GetIntervalVolume() / HistoryCounterData::HistorySize, 6);
     s << '|';
     DumpNumber(s, (cPushFailedHistory.GetIntervalCount() + drop_is_ok ? 0 : cDropHistory.GetIntervalCount()) /
                   HistoryCounterData::HistorySize,
                6);
 
     s << '|';
-    DumpNumber(s, cPushHistory.GetTotalCount(), 6);
+    DumpNumber(s, cMsgHistory.GetTotalCount(), 6);
+    s << '|';
+    DumpNumber(s, cMsgHistory.GetTotalVolume(), 6);
     s << '|';
     DumpNumber(s, cPushFailedHistory.GetTotalCount() + drop_is_ok ? 0 : cDropHistory.GetTotalCount(), 6);
     s << '|';
@@ -139,8 +141,10 @@ bool ShmBufferExData::Push(const ShmChunks &chunks) {
             case return_error:
                 return false;
             case drop_new:
-                ++drop_msg_count;
-                drop_msg_volume += rec_size;
+                ++tmp_drop_msg_count;
+                ++total_drop_msg_count;
+                tmp_msg_volume += rec_size;
+                total_drop_msg_volume += rec_size;
                 return true;
             case drop_old:
                 if (!dropFirstRecords(rec_size)) {
@@ -156,7 +160,10 @@ bool ShmBufferExData::Push(const ShmChunks &chunks) {
     chunks.WriteTo(r->Data());
     commit(rec_size);
     ++count;
-    ++total_count;
+    ++total_msg_count;
+    ++tmp_msg_count;
+    total_msg_volume += rec_size;
+    tmp_msg_volume += rec_size;
     return true;
 }
 
