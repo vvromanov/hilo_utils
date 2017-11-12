@@ -22,8 +22,9 @@ ShmBufferEx &LogStorage() {
         if (counters_suffix) {
             STRNCAT(name, counters_suffix);
         }
-        logStorage.Open(name, opt_log_storage_size);
-        logStorage.SetOverflovBehavior(drop_old, true);
+        if (!logStorage.Open(name, opt_log_storage_size)) {
+            logStorage.SetOverflovBehavior(drop_old, true);
+        }
     }
     return logStorage;
 }

@@ -9,7 +9,7 @@
 
 int main(int argc, char **argv) {
     counters_suffix = TEST_SUFFIX;
-    opt_log_storage_size = 50 * 1024 * 1024;
+    opt_log_storage_size = 5 * 1024 * 1024;
     remove_test_file(SHM_LOCATION COUNTERS_SHM_NAME_INCREMENTED TEST_SUFFIX);
     remove_test_file(SHM_LOCATION COUNTERS_SHM_NAME_VALUE TEST_SUFFIX);
     remove_test_file(SHM_LOCATION COUNTERS_SHM_NAME_HISTORY TEST_SUFFIX);

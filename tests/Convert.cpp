@@ -7,7 +7,6 @@ TEST(Convert, Ip) {
     EXPECT_EQ(CREATE_NETWORK_IP(11, 12, 13, 14), ip_network);
 }
 
-
 TEST(Convert, Int8) {
     int8_t v;
     EXPECT_FALSE(ConvertString("", v));
@@ -151,7 +150,7 @@ TEST(Convert, UInt64) {
 
 }
 
-TEST(Convert,Float32) {
+TEST(Convert, Float32) {
     float v;
     EXPECT_FALSE(ConvertString("", v));
     EXPECT_FALSE(ConvertString("1t", v));
@@ -165,7 +164,7 @@ TEST(Convert,Float32) {
     EXPECT_FLOAT_EQ(100, v);
 }
 
-TEST(Convert,Float64) {
+TEST(Convert, Float64) {
     double v;
     EXPECT_FALSE(ConvertString("", v));
     EXPECT_FALSE(ConvertString("1t", v));
@@ -180,7 +179,7 @@ TEST(Convert,Float64) {
 }
 
 
-TEST(Convert,Bool) {
+TEST(Convert, Bool) {
     bool v;
     EXPECT_TRUE(ConvertString("yes", v));
     EXPECT_TRUE(v);
@@ -205,15 +204,22 @@ TEST(Convert,Bool) {
 
 TEST(Convert, Time) {
     time_t v;
+
+    time_t t = time(NULL);
+    struct tm lt = {0};
+
+    localtime_r(&t, &lt);
+
     EXPECT_TRUE(ConvertStringTime("0x1000", v));
     EXPECT_EQ(0x1000, v);
 
     EXPECT_TRUE(ConvertStringTime("0xBADF00D1", v));
     EXPECT_EQ(0xBADF00D1, v);
 
-    EXPECT_TRUE(ConvertStringTime("1970-01-01 03:00:00", v));
-    EXPECT_EQ(0, v);
+    int64_t jan2_seconds = 24 * 60 * 60 - lt.tm_gmtoff;
+    EXPECT_TRUE(ConvertStringTime("1970-01-02 00:00:00", v));
+    EXPECT_EQ(jan2_seconds, v);
 
-    EXPECT_TRUE(ConvertStringTime("70/01/01 03:00:00", v));
-    EXPECT_EQ(0, v);
+    EXPECT_TRUE(ConvertStringTime("70/01/02 00:00:00", v));
+    EXPECT_EQ(jan2_seconds, v);
 }
