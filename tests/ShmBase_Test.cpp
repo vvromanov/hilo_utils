@@ -54,6 +54,7 @@ TEST_F(ShmBaseTest, OpenMirror2) {
 TEST_F(ShmBaseTest, OpenInvalidSize) {
     ShmBase test;
     EXPECT_TRUE(test.Open(TestShmName(), TEST_SHM_SIZE));
+    ScopedLogLevel ll(LOG_LEVEL_DISABLED);
     test.Close();
     EXPECT_FALSE(test.Open(TestShmName(), TEST_SHM_SIZE + 1));
 }
@@ -61,6 +62,7 @@ TEST_F(ShmBaseTest, OpenInvalidSize) {
 TEST_F(ShmBaseTest, AlreadyOpen) {
     ShmBase test;
     EXPECT_TRUE(test.Open(TestShmName(), TEST_SHM_SIZE));
+    ScopedLogLevel ll(LOG_LEVEL_DISABLED);
     EXPECT_FALSE(test.Open(TestShmName(), TEST_SHM_SIZE));
 }
 
@@ -72,6 +74,7 @@ TEST_F(ShmBaseTest, ReOpen) {
 
 TEST_F(ShmBaseTest, ReOpenFailed) {
     ShmBase test;
+    ScopedLogLevel ll(LOG_LEVEL_DISABLED);
     EXPECT_FALSE(test.Open(TestShmName(), 0));
 }
 

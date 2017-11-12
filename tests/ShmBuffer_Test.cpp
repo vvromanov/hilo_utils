@@ -18,6 +18,7 @@ TEST_F(ShmBufferTest, Open) {
     ShmBuffer test;
     EXPECT_TRUE(test.Open(TestShmName(), TEST_SHM_SIZE));
     EXPECT_TRUE(is_file_exists(TestFileName()));
+    ScopedLogLevel ll(LOG_LEVEL_DISABLED);
     EXPECT_EQ(TEST_SHM_SIZE + MEM_PAGE_SIZE, test.GetSize());
 }
 
@@ -25,12 +26,14 @@ TEST_F(ShmBufferTest, OpenInvalidSize) {
     ShmBuffer test;
     EXPECT_TRUE(test.Open(TestShmName(), TEST_SHM_SIZE));
     test.Close();
+    ScopedLogLevel ll(LOG_LEVEL_DISABLED);
     EXPECT_FALSE(test.Open(TestShmName(), TEST_SHM_SIZE * 10));
 }
 
 TEST_F(ShmBufferTest, AlreadyOpen) {
     ShmBuffer test;
     EXPECT_TRUE(test.Open(TestShmName(), TEST_SHM_SIZE));
+    ScopedLogLevel ll(LOG_LEVEL_DISABLED);
     EXPECT_FALSE(test.Open(TestShmName(), TEST_SHM_SIZE));
 }
 
@@ -42,6 +45,7 @@ TEST_F(ShmBufferTest, ReOpen) {
 
 TEST_F(ShmBufferTest, ReOpenFailed) {
     ShmBuffer test;
+    ScopedLogLevel ll(LOG_LEVEL_DISABLED);
     EXPECT_FALSE(test.Open(TestShmName(), 0));
 }
 

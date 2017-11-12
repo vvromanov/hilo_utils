@@ -50,7 +50,7 @@ TEST_F(TxLog, NameToLevel) {
 }
 
 TEST_F(TxLog, Write) {
-    ScopedLogLevel ll(LOG_LEVEL_PARN);
+    ScopedLogLevel ll(LOG_LEVEL_INFO);
     EXPECT_TRUE(log_write_record(LOG_LEVEL_CRIT, "test", -1));
 }
 

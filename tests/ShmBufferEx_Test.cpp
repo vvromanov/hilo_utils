@@ -28,12 +28,14 @@ TEST_F(ShmBufferExTest, OpenInvalidSize) {
     ShmBufferEx test;
     EXPECT_TRUE(test.Open(TestShmName(), TEST_SHM_SIZE));
     test.Close();
+    ScopedLogLevel ll(LOG_LEVEL_DISABLED);
     EXPECT_FALSE(test.Open(TestShmName(), TEST_SHM_SIZE * 10));
 }
 
 TEST_F(ShmBufferExTest, AlreadyOpen) {
     ShmBufferEx test;
     EXPECT_TRUE(test.Open(TestShmName(), TEST_SHM_SIZE));
+    ScopedLogLevel ll(LOG_LEVEL_DISABLED);
     EXPECT_FALSE(test.Open(TestShmName(), TEST_SHM_SIZE));
 }
 
@@ -45,6 +47,7 @@ TEST_F(ShmBufferExTest, ReOpen) {
 
 TEST_F(ShmBufferExTest, ReOpenFailed) {
     ShmBufferEx test;
+    ScopedLogLevel ll(LOG_LEVEL_DISABLED);
     EXPECT_FALSE(test.Open(TestShmName(), 0));
 }
 

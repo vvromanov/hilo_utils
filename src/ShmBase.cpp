@@ -31,7 +31,7 @@ bool ShmBase::openShm(const char *name, size_t _size, bool resize) {
         fd = shm_open(name, O_RDWR, (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH));
         if (fd < 0) {
             log_write(LOG_LEVEL_ERR_ERRNO, "shm_open(%s) failed", name);
-            fprintf(stderr, "shm_open(%s) failed. E%d - %s\n", name, errno, strerror(errno));
+//            fprintf(stderr, "shm_open(%s) failed. E%d - %s\n", name, errno, strerror(errno));
             return false;
         }
     }
@@ -39,7 +39,7 @@ bool ShmBase::openShm(const char *name, size_t _size, bool resize) {
         fd = shm_open(name, (O_CREAT | O_RDWR), (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH));
         if (fd < 0) {
             log_write(LOG_LEVEL_ERR_ERRNO, "shm_open(O_CREAT, %s) failed", name);
-            fprintf(stderr, "shm_open(O_CREAT, %s) failed. E%d - %s\n", name, errno, strerror(errno));
+//            fprintf(stderr, "shm_open(O_CREAT, %s) failed. E%d - %s\n", name, errno, strerror(errno));
             return false;
         }
     }
@@ -47,7 +47,7 @@ bool ShmBase::openShm(const char *name, size_t _size, bool resize) {
 
     if (fstat(fd, &file_stat)) {
         log_write(LOG_LEVEL_ERR_ERRNO, "fstat(%s) failed", name);
-        fprintf(stderr, "fstat(%s) failed. E%d - %s\n", name, errno, strerror(errno));
+//        fprintf(stderr, "fstat(%s) failed. E%d - %s\n", name, errno, strerror(errno));
         Close();
         return false;
     }
@@ -58,14 +58,14 @@ bool ShmBase::openShm(const char *name, size_t _size, bool resize) {
             size_t realsize = file_stat.st_size;
             if (realsize && _size != realsize) {
                 log_write(LOG_LEVEL_ERR, "Invalid shm [%s] size=%zu instead of %zu", name, realsize, _size);
-                fprintf(stderr, "Invalid shm [%s] size=%zu instead of %zu\n", name, realsize, _size);
+//                fprintf(stderr, "Invalid shm [%s] size=%zu instead of %zu\n", name, realsize, _size);
                 Close();
                 return false;
             }
         }
         if (ftruncate(fd, _size) < 0) {
             log_write(LOG_LEVEL_ERR_ERRNO, "ftruncate(%s, %zu) failed.", name, _size);
-            fprintf(stderr, "ftruncate(%s, %zu) failed. E%d - %s\n", name, size, errno, strerror(errno));
+//            fprintf(stderr, "ftruncate(%s, %zu) failed. E%d - %s\n", name, size, errno, strerror(errno));
             Close();
             return false;
         }
@@ -87,7 +87,7 @@ bool ShmBase::Open(const char *name, size_t _size, bool resize) {
     shm_data_ptr = (uint8_t *) mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (shm_data_ptr == MAP_FAILED) {
         log_write(LOG_LEVEL_ERR_ERRNO, "mmap(%s) failed. size=%zu", name, size);
-        fprintf(stderr, "mmap(%s) failed. size=%zu. E%d - %s\n", name, size, errno, strerror(errno));
+//        fprintf(stderr, "mmap(%s) failed. size=%zu. E%d - %s\n", name, size, errno, strerror(errno));
         Close();
         return false;
     }
@@ -95,7 +95,7 @@ bool ShmBase::Open(const char *name, size_t _size, bool resize) {
 #ifndef NO_MLOCK
     if (mlock(shm_data_ptr, size) != 0) {
         log_write(LOG_LEVEL_ERR_ERRNO, "mlock(%s) failed. size=%zu", name, size);
-        fprintf(stderr, "mlock(%s) failed. size=%zu. E%d - %s\n", name, size, errno, strerror(errno));
+//        fprintf(stderr, "mlock(%s) failed. size=%zu. E%d - %s\n", name, size, errno, strerror(errno));
         Close();
         return false;
     }
@@ -143,7 +143,7 @@ bool ShmBase::OpenMirror(const char *name, size_t _size, size_t header_size, boo
 #ifndef NO_MLOCK
     if (mlock(shm_data_ptr, size) != 0) {
         log_write(LOG_LEVEL_ERR_ERRNO, "mlock(%s) failed. size=%zu", name, size);
-        fprintf(stderr, "mlock(%s) failed. size=%zu. E%d - %s\n", name, size, errno, strerror(errno));
+//        fprintf(stderr, "mlock(%s) failed. size=%zu. E%d - %s\n", name, size, errno, strerror(errno));
         Close();
         return false;
     }
