@@ -100,6 +100,7 @@ bool ShmBase::OpenMirror(const char *name, size_t _size, size_t header_size, boo
     if (!openShm(name, _size, resize)) {
         return false;
     }
+    errno = 0;
     shm_data_ptr = (uint8_t *) mmap(NULL, size * 2 - header_size, PROT_NONE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
     if (shm_data_ptr == MAP_FAILED) {
         log_write(LOG_LEVEL_ERR_ERRNO, "mmap(%s) failed. size=%zu", name, size * 2 - header_size);
@@ -133,7 +134,7 @@ bool ShmBase::OpenMirror(const char *name, size_t _size, size_t header_size, boo
         return false;
     }
 #ifndef __CYGWIN__
-    if (mlock(data1, size) != 0) {
+    if (mlock(shm_data_ptr, size) != 0) {
         log_write(LOG_LEVEL_ERR_ERRNO, "mlock(%s) failed. size=%zu", name, size);
 //        Close();
 //        return false;
