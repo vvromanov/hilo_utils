@@ -2,7 +2,7 @@
 
 #include <ShmFileBase.h>
 #include <ShmBufferEx.h>
-#include "t1ha.h"
+#include <zlib.h>
 
 #define TEST_SHM_SIZE (MEM_PAGE_SIZE*4)
 
@@ -241,7 +241,7 @@ public:
     constexpr static size_t MaxTestDataSize = 10000;
     union { ;
         struct {
-            int64_t hash;
+            uint32_t hash;
             int64_t vptr;
             int16_t size;
             uint8_t random_data[];
@@ -265,7 +265,7 @@ public:
     }
 
     bool Check() const {
-        return h.hash == t1ha1_le(data + sizeof(h.hash), h.size - sizeof(h.hash), 0);
+        return h.hash == crc32(0, data + sizeof(h.hash), h.size - sizeof(h.hash));
     }
 
     size_t Size() {
@@ -291,7 +291,7 @@ public:
 
 private:
     void update_hash() {
-        h.hash = t1ha1_le(data + sizeof(h.hash), h.size - sizeof(h.hash), 0);
+        h.hash = crc32(0, data + sizeof(h.hash), h.size - sizeof(h.hash));
     }
 }  __attribute__ ((__packed__));
 

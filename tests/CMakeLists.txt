@@ -1,6 +1,8 @@
 set(TARGET test_hilo_utils)
 project(${TARGET})
 
+find_package(ZLIB REQUIRED)
+
 include_directories(
         ${TEST_INCS_ALL}
         ${UTILS_INCS_ALL}
@@ -24,8 +26,10 @@ add_executable(${TARGET}
 
 target_link_libraries(${TARGET}
         test_main
-        t1ha
-)
+        ${ZLIB_LIBRARY}
+        )
 
 add_test(${TARGET} ${TARGET})
-add_dependencies(check ${TARGET})
+if (NOT ${STANDALONE_BUILD})
+    add_dependencies(check ${TARGET})
+endif()

@@ -22,6 +22,6 @@ add_library(${TARGET} STATIC
         TestBase.h)
 
 target_link_libraries(${TARGET}
-        utils_lib
         ${GTEST_LIBRARIES}
+        hilo_utils
         )

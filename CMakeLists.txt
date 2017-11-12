@@ -1,3 +1,13 @@
+cmake_minimum_required(VERSION 2.8.7)
+
+get_directory_property(hasParent PARENT_DIRECTORY)
+if(hasParent)
+  set(STANDALONE_BUILD 0)
+else()
+  set(STANDALONE_BUILD 1)
+endif()
+
+
 set(TARGET hilo_utils)
 project(${TARGET})
 
@@ -50,6 +60,11 @@ add_library(${TARGET} STATIC
         src/log.h
         src/LogStorage.cpp
         src/LogStorage.h
+        )
+
+target_link_libraries(${TARGET}
+        pthread
+        rt
         )
 
 add_subdirectory(test_main)
