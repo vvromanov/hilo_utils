@@ -24,7 +24,7 @@ TEST(TestTimeUtils, GetTimeUs) {
 
 TEST(TestTimeUtils, GetClockMs) {
     struct timespec val;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &val);
+    clock_gettime(CLOCK_MONOTONIC, &val);
     int64_t now_ms = val.tv_sec * ((int64_t) 1000) + val.tv_nsec / 1000000;
 
     int64_t now_lib_ms = getClockMs();
@@ -34,12 +34,12 @@ TEST(TestTimeUtils, GetClockMs) {
 
 TEST(TestTimeUtils, GetClockUs) {
     struct timespec val;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &val);
+    clock_gettime(CLOCK_MONOTONIC, &val);
     int64_t now_us = val.tv_sec * ((int64_t) 1000000) + val.tv_nsec / 1000;
 
     int64_t now_lib_us = getClockUs();
     int64_t delta = now_lib_us - now_us;
-    ASSERT_TRUE(delta>0);
+    ASSERT_TRUE(delta>=0);
     ASSERT_GE(now_lib_us, now_us);
     ASSERT_LT(now_us - now_lib_us, 10);
 }

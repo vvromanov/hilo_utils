@@ -6,7 +6,15 @@ int64_t getTimeMs(void) {
     return getTimeUs() / 1000;
 }
 
+static __inline__ uint64_t rdtsc(void)
+{
+    unsigned hi, lo;
+    __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
+    return ( lo)|(((uint64_t)hi)<<32);
+}
+
 int64_t getTimeUs(void) {
+    rdtsc();
     struct timeval val;
     gettimeofday(&val, nullptr);
     return val.tv_sec * ((int64_t) 1000000) + val.tv_usec;
@@ -21,7 +29,7 @@ int64_t getClockUs(void) {
 #ifdef CYGWIN
     clock_gettime(CLOCK_REALTIME, &val);
 #else
-    clock_gettime(CLOCK_MONOTONIC_RAW, &val);
+    clock_gettime(CLOCK_MONOTONIC, &val);
 #endif
     return val.tv_sec * ((int64_t) 1000000) + val.tv_nsec/1000;
 }
