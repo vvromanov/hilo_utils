@@ -80,19 +80,19 @@ void ShmBufferEx::DumpStat(std::ostream &s) {
 
     bool drop_is_ok = GetData()->drop_is_ok;
     s << '|';
-    DumpNumber(s, cPopHistory.GetLastCount(), 6);
+    DumpNumber(s, cPushHistory.GetLastCount(), 6);
     s << '|';
     DumpNumber(s, (cPushFailedHistory.GetLastCount() + drop_is_ok ? 0 : cDropHistory.GetLastCount()), 6);
 
     s << '|';
-    DumpNumber(s, cPopHistory.GetIntervalCount() / HistoryCounterData::HistorySize, 6);
+    DumpNumber(s, cPushHistory.GetIntervalCount() / HistoryCounterData::HistorySize, 6);
     s << '|';
     DumpNumber(s, (cPushFailedHistory.GetIntervalCount() + drop_is_ok ? 0 : cDropHistory.GetIntervalCount()) /
                   HistoryCounterData::HistorySize,
                6);
 
     s << '|';
-    DumpNumber(s, cPopHistory.GetTotalCount(), 6);
+    DumpNumber(s, cPushHistory.GetTotalCount(), 6);
     s << '|';
     DumpNumber(s, cPushFailedHistory.GetTotalCount() + drop_is_ok ? 0 : cDropHistory.GetTotalCount(), 6);
     s << '|';
@@ -129,7 +129,7 @@ size_t ShmBufferExData::read(uint8_t *d, const size_t data_size) {
     return read_size;
 }
 
-bool ShmBufferExData::Add(const ShmChunks &chunks) {
+bool ShmBufferExData::Push(const ShmChunks &chunks) {
     shm_record_size_t rec_size = ShmBufferRecord::RecordSize(chunks.Size());
     if (0 == rec_size) {
         return true;

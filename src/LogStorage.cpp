@@ -52,7 +52,7 @@ bool log_write_record(log_level_t level, const char *message, int len) {
         len = strlen(message);
     }
     c.Add(message, len);
-    bool res = LogStorage().Add(c);
+    bool res = LogStorage().Push(c);
     in_log_write = false;
     return res;
 }

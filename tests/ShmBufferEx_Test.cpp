@@ -206,8 +206,8 @@ TEST_F(ShmBufferExTest, AddGet) {
     for (int j = 0; j < sizeof(data1); j++) {
         data1[j] = rand() % 256;
     }
-    EXPECT_TRUE(test.Add(data1, sizeof(data1)));
-    EXPECT_TRUE(test.Add(data1, sizeof(data1)));
+    EXPECT_TRUE(test.Push(data1, sizeof(data1)));
+    EXPECT_TRUE(test.Push(data1, sizeof(data1)));
     EXPECT_EQ(2, test.Count());
     EXPECT_EQ(2, test.TotalCount());
 
@@ -301,11 +301,11 @@ TEST_F(ShmBufferExTest, GetFirst) {
     size_t free_size = test.FreeSize();
     EXPECT_EQ(MEM_PAGE_SIZE - 1, free_size);
     ShmTestData d1(111, 0);
-    EXPECT_TRUE(test.Add(d1.Data(), d1.Size()));
+    EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
     d1.SetVptr(1);
-    EXPECT_TRUE(test.Add(d1.Data(), d1.Size()));
+    EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
     d1.SetVptr(2);
-    EXPECT_TRUE(test.Add(d1.Data(), d1.Size()));
+    EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
 
     ShmTestData d2;
     shm_record_size_t size;
@@ -336,11 +336,11 @@ TEST_F(ShmBufferExTest, Peek) {
     size_t free_size = test.FreeSize();
     EXPECT_EQ(MEM_PAGE_SIZE - 1, free_size);
     ShmTestData d1(111, 0);
-    EXPECT_TRUE(test.Add(d1.Data(), d1.Size()));
+    EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
     d1.SetVptr(1);
-    EXPECT_TRUE(test.Add(d1.Data(), d1.Size()));
+    EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
     d1.SetVptr(2);
-    EXPECT_TRUE(test.Add(d1.Data(), d1.Size()));
+    EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
 
     ShmTestData d2;
     shm_record_size_t size;
@@ -364,14 +364,14 @@ TEST_F(ShmBufferExTest, Fill) {
     ShmTestData d1(111, 0);
     while (free_size >= d1.Size()) {
         d1.SetVptr(test.Count());
-        EXPECT_TRUE(test.Add(d1.Data(), d1.Size()));
+        EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
         free_size = test.FreeSize();
     }
-    EXPECT_FALSE(test.Add(d1.Data(), d1.Size()));
+    EXPECT_FALSE(test.Push(d1.Data(), d1.Size()));
 
     test.SetOverflovBehavior(drop_new, false);
     EXPECT_EQ(0, test.DropCount());
-    EXPECT_TRUE(test.Add(d1.Data(), d1.Size()));
+    EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
     EXPECT_EQ(1, test.DropCount());
 
     shm_record_size_t size;
@@ -380,7 +380,7 @@ TEST_F(ShmBufferExTest, Fill) {
     EXPECT_EQ(0, d2.Vptr());
 
     test.SetOverflovBehavior(drop_old, false);
-    EXPECT_TRUE(test.Add(d1.Data(), d1.Size()));
+    EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
     EXPECT_EQ(2, test.DropCount());
     d2.Clear();
     EXPECT_TRUE(test.GetFirst(d2.Data(), ShmTestData::MaxTestDataSize, size, false));
@@ -394,7 +394,7 @@ TEST_F(ShmBufferExTest, ReadWriteCycleEx2) {
     EXPECT_TRUE(test2.Open(TestShmName(), 1));
     for (int i = 0; i < 10000; i++) {
         ShmTestData d1(111, i);
-        EXPECT_TRUE(test1.Add(d1.Data(), d1.Size()));
+        EXPECT_TRUE(test1.Push(d1.Data(), d1.Size()));
 
         ShmTestData d2;
         shm_record_size_t size = 0;
@@ -420,13 +420,13 @@ TEST_F(ShmBufferExTest, GetVptr) {
     EXPECT_EQ(0, test.GetEndVptr());
     ShmTestData d1(100, test.GetEndVptr());
 
-    EXPECT_TRUE(test.Add(d1.Data(), d1.Size()));
+    EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
     EXPECT_EQ(0, test.GetBeginVptr());
     EXPECT_EQ(ShmBufferRecord::RecordSize(d1.Size()), test.GetEndVptr());
     size_t free_size = test.FreeSize();
     while (free_size >= d1.Size()) {
         d1.SetVptr(test.GetEndVptr());
-        EXPECT_TRUE(test.Add(d1.Data(), d1.Size()));
+        EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
         free_size = test.FreeSize();
         EXPECT_EQ(0, test.GetBeginVptr());
         EXPECT_EQ(test.TotalCount() * ShmBufferRecord::RecordSize(d1.Size()), test.GetEndVptr());
@@ -435,7 +435,7 @@ TEST_F(ShmBufferExTest, GetVptr) {
 
     for (int i = 0; i < 1000; i++) {
         d1.SetVptr(test.GetEndVptr());
-        EXPECT_TRUE(test.Add(d1.Data(), d1.Size()));
+        EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
         EXPECT_EQ(test.DropCount() * ShmBufferRecord::RecordSize(d1.Size()), test.GetBeginVptr());
         EXPECT_EQ(test.TotalCount() * ShmBufferRecord::RecordSize(d1.Size()), test.GetEndVptr());
     }
@@ -463,7 +463,7 @@ TEST_F(ShmBufferExTest, GetByVptrFull) {
     ShmTestData td(111, test.GetEndVptr());
     for (int i = 0; i < 1000; i++) {
         td.SetVptr(test.GetEndVptr());
-        EXPECT_TRUE(test.Add(td.Data(), td.Size()));
+        EXPECT_TRUE(test.Push(td.Data(), td.Size()));
         EXPECT_EQ(test.DropCount() * ShmBufferRecord::RecordSize(td.Size()), test.GetBeginVptr());
         EXPECT_EQ(test.TotalCount() * ShmBufferRecord::RecordSize(td.Size()), test.GetEndVptr());
 
@@ -478,7 +478,7 @@ static void fill_data(ShmBufferEx &test) {
     test.SetOverflovBehavior(drop_old, false);
     for (int i = 0; i < 1000; i++) {
         ShmTestData td(100 + rand() % 100, test.GetEndVptr());
-        EXPECT_TRUE(test.Add(td.Data(), td.Size()));
+        EXPECT_TRUE(test.Push(td.Data(), td.Size()));
     }
 }
 

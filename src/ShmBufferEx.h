@@ -105,10 +105,10 @@ public:
         return head == tail;
     }
 
-    bool Add(const ShmChunks &chunks);
+    bool Push(const ShmChunks &chunks);
 
     bool Add(const uint8_t *data, shm_record_size_t size) {
-        return Add(ShmChunks(data, size));
+        return Push(ShmChunks(data, size));
     }
 
     bool GetFirst(uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size, bool delete_record = true);
@@ -280,12 +280,12 @@ public:
         return GetData()->total_count;
     }
 
-    bool Add(const ShmChunks &chunks) {
+    bool Push(const ShmChunks &chunks) {
         ++cPushLocal;
         bool res;
         {
             SHM_WRITE_LOCK;
-            res = GetData()->Add(chunks);
+            res = GetData()->Push(chunks);
         }
         if (!res) {
             ++cPushFailedLocal;
@@ -294,8 +294,8 @@ public:
         return true;
     }
 
-    bool Add(const uint8_t *data, shm_record_size_t size) {
-        return Add(ShmChunks(data, size));
+    bool Push(const uint8_t *data, shm_record_size_t size) {
+        return Push(ShmChunks(data, size));
     }
 
     bool GetFirst(uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size, bool delete_record = true) {
