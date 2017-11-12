@@ -50,12 +50,13 @@ TEST_F(TxLog, NameToLevel) {
 }
 
 TEST_F(TxLog, Write) {
+    ScopedLogLevel ll(LOG_LEVEL_PARN);
     EXPECT_TRUE(log_write_record(LOG_LEVEL_CRIT, "test", -1));
 }
 
 
 TEST_F(TxLog, WriteLogLevels) {
-    ScopedLogLevel ll(LOG_LEVEL_CRIT);
+    ScopedLogLevel ll(LOG_LEVEL_DISABLED);
     log_write(LOG_LEVEL_PARN, "Paranoid");
     log_write(LOG_LEVEL_DEBUG, "Debug");
     log_write(LOG_LEVEL_INFO, "Info");
