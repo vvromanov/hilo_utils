@@ -1,3 +1,4 @@
+dist: trusty
 sudo: false
 
 language: cpp
@@ -6,6 +7,9 @@ addons:
     apt:
         sources:
             - ubuntu-toolchain-r-test
+    ulimit:
+        core: unlimited
+        memlock: unlimited
 
 before_install:
     - pip install --user cpp-coveralls
