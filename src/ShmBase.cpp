@@ -133,10 +133,10 @@ bool ShmBase::OpenMirror(const char *name, size_t _size, size_t header_size, boo
         return false;
     }
 #ifndef __CYGWIN__
-    if (mlock(shm_data_ptr, map_size) != 0) {
+    if (mlock(data1, size) != 0) {
         log_write(LOG_LEVEL_ERR_ERRNO, "mlock(%s) failed. size=%zu", name, size);
-        Close();
-        return false;
+//        Close();
+//        return false;
     }
 #endif
     return true;
