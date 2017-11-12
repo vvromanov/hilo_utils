@@ -19,7 +19,7 @@ before_script:
     - cmake ..
 
 script: 
-    - make
+    - make -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=On
     - ctest -V
 
 after_success:

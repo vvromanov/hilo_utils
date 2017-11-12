@@ -5,6 +5,10 @@ if(hasParent)
   set(STANDALONE_BUILD 0)
 else()
   set(STANDALONE_BUILD 1)
+  enable_testing()
+  set(CTEST_CUSTOM_PRE_TEST "rm -vf /dev/shm/tx_*; rm -vf /dev/mqueue/tx_*")
+  set(CTEST_CUSTOM_POST_TEST "rm -vf /dev/shm/tx_*; rm -vf /dev/mqueue/tx_*")
+
   if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W")
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
@@ -31,6 +35,19 @@ else()
       endif (NO_CYGWIN)
       set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g3")
   endif ()
+
+  if (COVERAGE)
+      if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+          message(FATAL_ERROR "Coverage requires -DCMAKE_BUILD_TYPE=Debug Current value=${CMAKE_BUILD_TYPE}")
+      endif()
+
+      message(STATUS "Setting coverage compiler flags")
+
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -ggdb3 -O0 --coverage")
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}     -g -ggdb3 -O0 --coverage")
+
+      add_definitions(-DCOVERAGE_TEST)
+  endif()
 endif()
 
 set(TARGET hilo_utils)
