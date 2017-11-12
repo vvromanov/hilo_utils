@@ -15,7 +15,11 @@ Counters &LogCounters() {
             logCounters.Open(LOG_COUNTERS_SHM_NAME, counters_suffix);
         }
         if (opt_log_level == LOG_LEVEL_PARN) {
-            fprintf(stderr, "Log counters opened\n");
+            if (logCounters.IsOpened()) {
+                fprintf(stderr, "Log counters opened\n");
+            } else {
+                fprintf(stderr, "Can't open log counters!!!\n");
+            }
         }
     }
     return logCounters;
