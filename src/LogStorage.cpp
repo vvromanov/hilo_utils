@@ -68,6 +68,7 @@ bool log_write_record(log_level_t level, const char *message, int len) {
         }
         update_log_source();
     }
+    fprintf(stderr, "log_write_record - construct log_record\n");
     log_record_t hdr;
     hdr.level = level;
     hdr.pid = getpid();
@@ -78,6 +79,7 @@ bool log_write_record(log_level_t level, const char *message, int len) {
         len = strlen(message);
     }
     c.Add(message, len);
+    fprintf(stderr, "log_write_record - call LogStorage().Push(c)\n");
     bool res = LogStorage().Push(c);
     in_log_write = false;
     return res;
