@@ -74,9 +74,6 @@ public:
         return GetData()->dict.Lookup(name);
     }
     index_t Add(const char *name) {
-        if (opt_log_level == LOG_LEVEL_PARN) {
-            fprintf(stderr, "Countes add %s\n", name);
-        }
         return GetData()->dict.Add(name);
     }
     void DumpHtml(std::ostream &s, const char *prefix);
