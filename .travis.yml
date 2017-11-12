@@ -1,5 +1,5 @@
 dist: trusty
-sudo: false
+sudo: true
 
 language: cpp
 
@@ -23,7 +23,8 @@ script:
     - make
     - ulimit -l -S
     - ulimit -l -H
-    - ulimit -l unlimited -S
+    - sudo ulimit -l unlimited -H
+    - sudo ulimit -l unlimited -S
     - ulimit -l -S
     - ctest -V
 
