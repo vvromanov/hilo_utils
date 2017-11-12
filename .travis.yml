@@ -11,6 +11,9 @@ before_install:
     - pip install --user cpp-coveralls
     - pip install --user libgtest-dev
 
+install:
+    - sudo apt-get install -qq libgtest-dev
+    
 compiler:  
     - gcc
 
@@ -21,7 +24,7 @@ before_script:
 
 script: 
     - make
-    - tests/test_hilo_utils
+    - ctest -V
 
 after_success:
     - coveralls --root .. -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" -E ".*gtest.*"
