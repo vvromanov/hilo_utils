@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.4)
 set(TARGET test_main)
 project(${TARGET})
 
+set_source_files_properties(gtest-all.cc PROPERTIES COMPILE_FLAGS "-Wno-missing-declarations")
 
 set(TEST_INCS_ALL
         ${CMAKE_CURRENT_SOURCE_DIR}
