@@ -92,7 +92,7 @@ bool ShmBase::Open(const char *name, size_t _size, bool resize) {
         return false;
     }
     map_size = size;
-#ifndef __CYGWIN__
+#ifndef NO_MLOCK
     if (mlock(shm_data_ptr, size) != 0) {
         log_write(LOG_LEVEL_ERR_ERRNO, "mlock(%s) failed. size=%zu", name, size);
         fprintf(stderr, "mlock(%s) failed. size=%zu. E%d - %s\n", name, size, errno, strerror(errno));
@@ -140,12 +140,12 @@ bool ShmBase::OpenMirror(const char *name, size_t _size, size_t header_size, boo
         Close();
         return false;
     }
-#ifndef __CYGWIN__
+#ifndef NO_MLOCK
     if (mlock(shm_data_ptr, size) != 0) {
         log_write(LOG_LEVEL_ERR_ERRNO, "mlock(%s) failed. size=%zu", name, size);
         fprintf(stderr, "mlock(%s) failed. size=%zu. E%d - %s\n", name, size, errno, strerror(errno));
-//        Close();
-//        return false;
+        Close();
+        return false;
     }
 #endif
     return true;

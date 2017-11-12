@@ -17,15 +17,10 @@ compiler:
 before_script:  
     - mkdir build
     - cd build
-    - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=On
+    - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=On -DTRAVIS=On
 
 script: 
     - make
-    - ulimit -l -S
-    - ulimit -l -H
-    - sudo ulimit -l unlimited -H
-    - sudo ulimit -l unlimited -S
-    - ulimit -l -S
     - ctest -V
 
 after_success:

@@ -48,6 +48,10 @@ else()
 
       add_definitions(-DCOVERAGE_TEST)
   endif()
+
+  if (TRAVIS)
+      add_definitions(-DNO_MLOCK)
+  endif()
 endif()
 
 set(TARGET hilo_utils)
