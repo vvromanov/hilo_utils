@@ -7,9 +7,6 @@ addons:
     apt:
         sources:
             - ubuntu-toolchain-r-test
-    ulimit:
-        core: unlimited
-        memlock: unlimited
 
 before_install:
     - pip install --user cpp-coveralls
@@ -24,6 +21,10 @@ before_script:
 
 script: 
     - make
+    - ulimit -l -S
+    - ulimit -l -H
+    - ulimit -l unlimited -S
+    - ulimit -l -S
     - ctest -V
 
 after_success:
