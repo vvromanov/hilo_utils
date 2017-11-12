@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 2.8.7)
 
+set(TARGET hilo_utils)
+project(${TARGET})
+
+enable_language(C)
+enable_language(CXX)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED on)
+
 get_directory_property(hasParent PARENT_DIRECTORY)
 if(hasParent)
   set(STANDALONE_BUILD 0)
@@ -30,9 +39,7 @@ else()
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-packed-bitfield-compat")
 
       set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
-      if (NO_CYGWIN)
-          set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fsanitize=leak -fstack-protector-strong -static-libasan")
-      endif (NO_CYGWIN)
+      set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fsanitize=leak -fstack-protector-strong -static-libasan")
       set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g3")
   endif ()
 
@@ -53,15 +60,6 @@ else()
       add_definitions(-DNO_MLOCK)
   endif()
 endif()
-
-set(TARGET hilo_utils)
-project(${TARGET})
-
-enable_language(C)
-enable_language(CXX)
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
 
 set(HILO_INCS_ALL ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE INTERNAL "HILO_INCS_ALL")
 

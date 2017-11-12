@@ -1,5 +1,6 @@
 rm -fr build
 mkdir -p build
 cd build
-cmake ../
-make
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=On -DTRAVIS=On
+make VERBOSE=1
+
