@@ -39,7 +39,7 @@ TEST(TestTimeUtils, GetClockUs) {
 
     int64_t now_lib_us = getClockUs();
     int64_t delta = now_lib_us - now_us;
-    ASSERT_TRUE(delta>0);
+    ASSERT_TRUE(delta>=0);
     ASSERT_GE(now_lib_us, now_us);
     ASSERT_LT(now_us - now_lib_us, 10);
 }
