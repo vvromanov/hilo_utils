@@ -7,8 +7,8 @@
 #include <sys/stat.h>
 #include "common_utils.h"
 
-#define SHM_READ_LOCK AutoMutexLock lock(GetMutex());
-#define SHM_WRITE_LOCK AutoMutexLock lock(GetMutex());
+//#define SHM_READ_LOCK AutoMutexLock lock(GetMutex(), __PRETTY_FUNCTION__);
+//#define SHM_WRITE_LOCK AutoMutexLock lock(GetMutex(), __PRETTY_FUNCTION__);
 
 template<typename T>
 class ShmSimple : public ShmBase {

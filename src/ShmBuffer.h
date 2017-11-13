@@ -65,32 +65,32 @@ public:
     bool Open(const char *name, size_t size);
 
     size_t FreeSize() {
-        SHM_READ_LOCK;
+        READ_LOCK;
         return GetData()->free_size();
     }
 
     size_t Capacity() {
-        SHM_READ_LOCK;
+        READ_LOCK;
         return GetData()->capacity();
     }
 
     bool Write(const uint8_t *d, size_t data_size) {
-        SHM_WRITE_LOCK
+        WRITE_LOCK
         return GetData()->write(d, data_size);
     }
 
     size_t Read(uint8_t *d, size_t data_size) {
-        SHM_WRITE_LOCK
+        WRITE_LOCK
         return GetData()->read(d, data_size);
     }
 
     size_t DataSize() {
-        SHM_READ_LOCK
+        READ_LOCK
         return GetData()->data_size();
     }
 
     void Free(size_t s) {
-        SHM_WRITE_LOCK;
+        WRITE_LOCK;
         GetData()->free(s);
     }
 

@@ -28,13 +28,13 @@ counters_format_t str2counters_format(const char *s) {
 
 Counters::index_t Counters::GetCounterIndex(const char *name) {
     {
-        SHM_READ_LOCK;
+        READ_LOCK;
         auto index = GetData()->dict.Lookup(name);
         if (index != DICTIONARY_INVALID_INDEX) {
             return index;
         }
     }
-    SHM_WRITE_LOCK;
+    WRITE_LOCK;
     auto index = GetData()->dict.Lookup(name);
     if (index != DICTIONARY_INVALID_INDEX) {
         return index;
@@ -43,7 +43,7 @@ Counters::index_t Counters::GetCounterIndex(const char *name) {
 }
 
 Counters::index_t Counters::LookupIndex(const char *name) {
-    SHM_READ_LOCK;
+    READ_LOCK;
     return GetData()->dict.Lookup(name);
 }
 

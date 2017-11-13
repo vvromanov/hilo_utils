@@ -11,7 +11,7 @@ HistoryCounters &GetHistoryCounters() {
 }
 
 HistoryCounterData *HistoryCounters::GetCounterPtr(const char *name) {
-    SHM_WRITE_LOCK
+    WRITE_LOCK
     index_t index = GetData()->dict.Add(name);
     if (index == DICTIONARY_INVALID_INDEX) {
         return NULL;
@@ -21,13 +21,13 @@ HistoryCounterData *HistoryCounters::GetCounterPtr(const char *name) {
 
 HistoryCounters::index_t HistoryCounters::GetCounterIndex(const char *name) {
     {
-        SHM_READ_LOCK;
+        READ_LOCK;
         auto index = GetData()->dict.Lookup(name);
         if (index != DICTIONARY_INVALID_INDEX) {
             return index;
         }
     }
-    SHM_WRITE_LOCK;
+    WRITE_LOCK;
     auto index = GetData()->dict.Lookup(name);
     if (index != DICTIONARY_INVALID_INDEX) {
         return index;

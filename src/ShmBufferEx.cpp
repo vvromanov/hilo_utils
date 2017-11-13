@@ -27,7 +27,7 @@ bool ShmBufferEx::Open(const char *name, size_t _size) {
 
 void ShmBufferEx::UpdateCounters() {
     cMsgCount = Count();
-    SHM_WRITE_LOCK;
+    WRITE_LOCK;
     GetData()->TransferDrops(cDropHistory);
     GetData()->TransferMsg(cMsgHistory);
 }

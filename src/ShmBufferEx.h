@@ -236,22 +236,22 @@ public:
     bool Open(const char *name, size_t size);
 
     size_t FreeSize() {
-        SHM_READ_LOCK;
+        READ_LOCK;
         return GetData()->free_size();
     }
 
     size_t Capacity() {
-        SHM_READ_LOCK;
+        READ_LOCK;
         return GetData()->capacity();
     }
 
     size_t DataSize() {
-        SHM_READ_LOCK;
+        READ_LOCK;
         return GetData()->data_size();
     }
 
     size_t DropCount() {
-        SHM_READ_LOCK;
+        READ_LOCK;
         return GetData()->total_drop_msg_count;
     }
 
@@ -259,17 +259,17 @@ public:
 
     //Will be called only form tests
         bool Write(const uint8_t *d, size_t data_size) {
-            SHM_WRITE_LOCK
+            WRITE_LOCK
             return GetData()->write(d, data_size);
         }
 
         size_t Read(uint8_t *d, size_t data_size) {
-            SHM_WRITE_LOCK
+            WRITE_LOCK
             return GetData()->read(d, data_size);
         }
 
         void Free(size_t s) {
-            SHM_WRITE_LOCK;
+            WRITE_LOCK;
             GetData()->free(s);
         }
 
@@ -280,7 +280,7 @@ public:
 #endif
 
     void SetOverflovBehavior(on_overflov_t d, bool drop_is_ok) {
-        SHM_WRITE_LOCK;
+        WRITE_LOCK;
         GetData()->on_overflow = d;
         GetData()->drop_is_ok = drop_is_ok;
     }
@@ -296,7 +296,7 @@ public:
     bool Push(const ShmChunks &chunks) {
         bool res;
         {
-            SHM_WRITE_LOCK;
+            WRITE_LOCK;
             res = GetData()->Push(chunks);
         }
         if (!res) {
@@ -316,7 +316,7 @@ public:
             size = 0;
             return false;
         }
-        SHM_WRITE_LOCK;
+        WRITE_LOCK;
         return p->GetFirst(data, max_size, size, delete_record);
     }
 
@@ -326,7 +326,7 @@ public:
             size = 0;
             return false;
         }
-        SHM_WRITE_LOCK;
+        WRITE_LOCK;
         return p->Get(pos, dir, data, max_size, size);
     }
 
@@ -336,7 +336,7 @@ public:
             size = 0;
             return false;
         }
-        SHM_WRITE_LOCK;
+        WRITE_LOCK;
         return p->Get(pos, lost, data, max_size, size);
     }
 
@@ -346,12 +346,12 @@ public:
             size = 0;
             return false;
         }
-        SHM_WRITE_LOCK;
+        WRITE_LOCK;
         return p->Get(reader_index, data, max_size, size);
     }
 
     bool GetReaderInfo(int reader_index, ShmBufferExData::reader_info_t &reader_info) {
-        SHM_READ_LOCK;
+        READ_LOCK;
         return GetData()->GetReaderInfo(reader_index, reader_info);
     }
 
@@ -360,27 +360,27 @@ public:
     }
 
     vptr_t GetBeginVptr() {
-        SHM_READ_LOCK;
+        READ_LOCK;
         return GetData()->GetBeginVptr();
     }
 
     vptr_t GetLastVptr() {
-        SHM_READ_LOCK;
+        READ_LOCK;
         return GetData()->GetLastVptr();
     }
 
     vptr_t GetEndVptr() {
-        SHM_READ_LOCK;
+        READ_LOCK;
         return GetData()->GetEndVptr();
     }
 
     vptr_t GetNextVptr(vptr_t pos) {
-        SHM_READ_LOCK;
+        READ_LOCK;
         return GetData()->GetNextVptr(pos);
     }
 
     vptr_t GetPrevVptr(vptr_t pos) {
-        SHM_READ_LOCK;
+        READ_LOCK;
         return GetData()->GetPrevVptr(pos);
     }
 
