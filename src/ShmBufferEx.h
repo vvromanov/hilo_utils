@@ -313,6 +313,7 @@ public:
     bool GetFirst(uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size, bool delete_record = true) {
         ShmBufferExData *p = GetData();
         if (p->count == 0) {
+            size = 0;
             return false;
         }
         SHM_WRITE_LOCK;
@@ -322,6 +323,7 @@ public:
     bool Get(vptr_t &pos, direction_t dir, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
         ShmBufferExData *p = GetData();
         if (p->count == 0) {
+            size = 0;
             return false;
         }
         SHM_WRITE_LOCK;
@@ -331,6 +333,7 @@ public:
     bool Get(vptr_t &pos, vptr_t &lost, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
         ShmBufferExData *p = GetData();
         if (p->count == 0) {
+            size = 0;
             return false;
         }
         SHM_WRITE_LOCK;
@@ -340,6 +343,7 @@ public:
     bool Get(int reader_index, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
         ShmBufferExData *p = GetData();
         if (p->count == 0) {
+            size = 0;
             return false;
         }
         SHM_WRITE_LOCK;
