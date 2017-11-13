@@ -24,5 +24,5 @@ script:
     - ctest -V
 
 after_success:
-    - coveralls --root .. -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" -E ".*gtest.*"
+    - coveralls --root .. -E ".*external.*" -E ".*CMakeFiles.*" -E ".*tests/.*.cpp.*" -E "test_main/.*"
     - ls -lR ..
