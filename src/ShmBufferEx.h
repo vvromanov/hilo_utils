@@ -311,23 +311,39 @@ public:
     }
 
     bool GetFirst(uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size, bool delete_record = true) {
+        ShmBufferExData *p = GetData();
+        if (p->count == 0) {
+            return false;
+        }
         SHM_WRITE_LOCK;
-        return GetData()->GetFirst(data, max_size, size, delete_record);
+        return p->GetFirst(data, max_size, size, delete_record);
     }
 
     bool Get(vptr_t &pos, direction_t dir, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
+        ShmBufferExData *p = GetData();
+        if (p->count == 0) {
+            return false;
+        }
         SHM_WRITE_LOCK;
-        return GetData()->Get(pos, dir, data, max_size, size);
+        return p->Get(pos, dir, data, max_size, size);
     }
 
     bool Get(vptr_t &pos, vptr_t &lost, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
+        ShmBufferExData *p = GetData();
+        if (p->count == 0) {
+            return false;
+        }
         SHM_WRITE_LOCK;
-        return GetData()->Get(pos, lost, data, max_size, size);
+        return p->Get(pos, lost, data, max_size, size);
     }
 
     bool Get(int reader_index, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
+        ShmBufferExData *p = GetData();
+        if (p->count == 0) {
+            return false;
+        }
         SHM_WRITE_LOCK;
-        return GetData()->Get(reader_index, data, max_size, size);
+        return p->Get(reader_index, data, max_size, size);
     }
 
     bool GetReaderInfo(int reader_index, ShmBufferExData::reader_info_t &reader_info) {
