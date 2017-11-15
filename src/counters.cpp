@@ -52,6 +52,16 @@ int64_t Counters::GetCounterValue(index_t index) {
     return GetData()->counters[index];
 }
 
+int64_t Counters::GetCounterValue(const char *name) {
+    READ_LOCK;
+    Counters::index_t index= GetData()->dict.Lookup(name);
+    if (index==DICTIONARY_INVALID_INDEX) {
+        return INVALID_COUNTER_VALUE;
+    } else {
+        return GetData()->counters[index];
+    }
+}
+
 counter_t *Counters::GetCounterPtr(Counters::index_t index) {
     return GetData()->counters + index;
 }

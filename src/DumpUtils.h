@@ -30,3 +30,4 @@ const char *GetIndentStr(uint32_t indent);
 const char *GetIndentStrEx(uint32_t indent, bool for_html);
 std::ostream &DumpNumber(std::ostream &s, uint64_t n, int w);
 std::ostream &DumpTime(std::ostream &s, uint64_t n, int w);
+std::ostream &DumpDateTimeElapsed(std::ostream &s, uint64_t n, int w);

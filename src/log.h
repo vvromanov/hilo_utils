@@ -61,7 +61,7 @@ class ScopedLogLevel {
 public:
     ScopedLogLevel(log_level_t level) {
         prev_log_level = opt_log_level;
-        opt_log_level = level;
+        opt_log_level = (log_level_t)(level & LOG_LEVEL_MASK);
     }
 
     ~ScopedLogLevel() {

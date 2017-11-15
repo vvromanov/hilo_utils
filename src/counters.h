@@ -13,6 +13,7 @@
 
 #define COUNTERS_SHM_NAME_INCREMENTED   "tx_counters_inc"
 #define COUNTERS_SHM_NAME_VALUE         "tx_counters_val"
+#define INVALID_COUNTER_VALUE (INT64_MIN)
 
 class CountersData {
 public:
@@ -63,6 +64,7 @@ public:
     index_t GetCounterIndex(const char *name);
     index_t LookupIndex(const char *name);
     int64_t GetCounterValue(index_t index);
+    int64_t GetCounterValue(const char *name);
     counter_t *GetCounterPtr(index_t index);
     void GetCategory(const char *prefix, index_info_t &index_info);
 

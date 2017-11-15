@@ -102,3 +102,4 @@ TEST(DumpUtils, DumpTime) {
     EXPECT_TRUE(TestDumpTime(59 + 59 * 60 + 1000000000ULL * (60 * 60), 10, "1000000000"));
     EXPECT_TRUE(TestDumpTime(59 + 59 * 60 + 10000000000ULL * (60 * 60), 10, " 10000000k"));
 }
+

@@ -27,6 +27,10 @@ public:
         ptr = p;
     }
 
+    void Reset() {
+        ptr = &def_value;
+    }
+
     bool IsValid() {
         return (ptr != &def_value);
     }
