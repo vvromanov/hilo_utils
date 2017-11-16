@@ -27,6 +27,8 @@
 #define DATE_TIME_FORMAT1 "%Y-%m-%d %H:%M:%S"
 #define DATE_TIME_FORMAT2 "%y/%m/%d %H:%M:%S"
 
+#define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
+
 template<typename T>
 bool ConvertString(const char *data, T &value) {
     if (data == NULL) {
