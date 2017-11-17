@@ -49,6 +49,7 @@ counters_format_t str2counters_format(const char *s);
 
 class Counters : public ShmSimple<CountersData> {
 public:
+    typedef CountersData::Dictionary::name_rec_t name_rec_t;
     typedef CountersData::Dictionary::index_t index_t;
     typedef CountersData::Dictionary::index_info_t index_info_t;
 

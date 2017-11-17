@@ -33,6 +33,7 @@ class HistoryCounters : public ShmSimple<HistoryCountersData> {
 public:
     typedef HistoryCountersData::Dictionary::index_t index_t;
     typedef HistoryCountersData::Dictionary::index_info_t index_info_t;
+    typedef HistoryCountersData::Dictionary::name_rec_t name_rec_t;
 
     bool Open(const char *name, const char *suffix) {
         char name_[NAME_MAX];
