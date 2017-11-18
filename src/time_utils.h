@@ -4,6 +4,10 @@
 #include <ctime>
 #include <sys/time.h>
 
+static inline int64_t getTimeMs(struct timeval val) {
+    return val.tv_sec * ((int64_t) 1000) + val.tv_usec/1000;
+}
+
 static inline int64_t getTimeUs(void) {
     struct timeval val;
     gettimeofday(&val, nullptr);
@@ -13,7 +17,7 @@ static inline int64_t getTimeUs(void) {
 static inline int64_t getTimeMs(void) {
     struct timeval val;
     gettimeofday(&val, nullptr);
-    return val.tv_sec * ((int64_t) 1000) + val.tv_usec/1000;
+    return getTimeMs(val);
 }
 
 static inline int64_t getClockUs(void) {
