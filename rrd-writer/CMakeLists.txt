@@ -22,7 +22,7 @@ add_executable(${TARGET}
 target_link_libraries(${TARGET}
         hilo_utils
         rrd
-        systemd
+        ${SYSTEMD_LIB}
         ${LIBEV_LIBRARIES}
         )
 
