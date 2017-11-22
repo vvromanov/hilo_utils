@@ -111,6 +111,24 @@ add_library(${TARGET} STATIC
         src/log.h
         src/LogStorage.cpp
         src/LogStorage.h
+        src/LogMonitorEv.h
+        src/LogMonitorEvent.h
+        src/LogMonitor.h
+        src/LogMonitor.cpp
+        src/LogOptions.cpp
+        src/LogOptions.h
+
+        #Monitoring
+        src/Uptime.cpp
+        src/Uptime.h
+        src/SysInfoMemory.cpp
+        src/SysInfoMemory.h
+        src/SysInfoCpu.cpp
+        src/SysInfoCpu.h
+        src/Rusage.h
+        src/Rusage.cpp
+        src/SignalWatcher.cpp
+        src/SignalWatcher.h
         )
 
 target_link_libraries(${TARGET}
@@ -120,3 +138,4 @@ target_link_libraries(${TARGET}
 
 add_subdirectory(test_main)
 add_subdirectory(tests)
+add_subdirectory(rrd-writer)

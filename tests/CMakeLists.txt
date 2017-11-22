@@ -22,6 +22,8 @@ add_executable(${TARGET}
         Dictionary_test.cpp
         TestTimeUtils.cpp
         DumpUtilsTest.cpp
+        SysInfo.cpp
+        TestUptime.cpp
 )
 
 target_link_libraries(${TARGET}
