@@ -2,6 +2,9 @@ set(TARGET rrd-writer)
 project(${TARGET})
 add_definitions(-DTX_PROGNAME="${TARGET}")
 
+find_package(LibEv REQUIRED)
+
+message(* LIBEV_INCLUDE_DIR = ${LIBEV_INCLUDE_DIR})
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${HILO_INCS_ALL}

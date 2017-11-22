@@ -63,6 +63,9 @@ else ()
     else ()
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fsanitize=leak -fstack-protector-strong -static-libasan")
     endif ()
+    add_definitions(-DTX_VERSION_VERSION_STR="1.0.0")
+    add_definitions(-DTX_VERSION_BUILD_STR="0")
+    add_definitions(-DTX_VERSION_VARIANT="${CMAKE_BUILD_TYPE}")
 endif ()
 
 set(HILO_INCS_ALL ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE INTERNAL "HILO_INCS_ALL")
@@ -83,6 +86,7 @@ add_library(${TARGET} STATIC
         src/file_utils.h
         src/file_utils.cpp
         src/Status.cpp
+        src/LibEv.h
 
         #Shared Memory
         src/ShmBase.h
@@ -139,6 +143,6 @@ target_link_libraries(${TARGET}
         rt
         )
 
+add_subdirectory(rrd-writer)
 add_subdirectory(test_main)
 add_subdirectory(tests)
-add_subdirectory(rrd-writer)
