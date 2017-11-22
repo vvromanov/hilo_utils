@@ -7,8 +7,8 @@ find_package(SystemdDaemon)
 find_package(Systemd)
 
 
-if (SYSTEMDDAEMON_FOUND)
-    set(SYSD_LIB ${SYSTEMDDAEMON_LIBRARY})
+if (NOT SYSTEMD_FOUND)
+    set(SYSD_LIB systemd-daemon)
     set(SYSD_INC ${SYSTEMDDAEMON_INCLUDE_DIR})
 else ()
     set(SYSD_LIB ${SYSTEMD_LIBRARIES})
