@@ -6,12 +6,20 @@ find_package(LibEv REQUIRED)
 find_package(SystemdDaemon)
 find_package(Systemd)
 
+
+if (SYSTEMDDAEMON_FOUND)
+    set(SYSD_LIB ${SYSTEMDDAEMON_LIBRARY})
+    set(SYSD_INC ${SYSTEMDDAEMON_INCLUDE_DIR})
+else ()
+    set(SYSD_LIB ${SYSTEMD_LIBRARIES})
+    set(SYSD_INC ${SYSTEMD_INCLUDE_DIRS})
+endif ()
+
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${HILO_INCS_ALL}
         ${LIBEV_INCLUDE_DIR}
-        ${SYSTEMD_INCLUDE_DIRS}
-        ${SYSTEMDDAEMON_INCLUDE_DIR}
+        ${SYSD_INC}
         ${FILE_WRITER_INCS_ALL}
 )
 
@@ -25,8 +33,7 @@ add_executable(${TARGET}
 target_link_libraries(${TARGET}
         hilo_utils
         rrd
-        ${SYSTEMD_LIBRARIES}
-        ${SYSTEMDDAEMON_LIBRARY}
+        ${SYSD_LIB}
         ${LIBEV_LIBRARIES}
         )
 
