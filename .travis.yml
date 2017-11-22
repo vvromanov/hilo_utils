@@ -9,7 +9,7 @@ addons:
             - ubuntu-toolchain-r-test
 
 before_install:
-    - pip install --user cpp-coveralls
+    - pip install --user cpp-coveralls libev-devel
 
 compiler:  
     - gcc
