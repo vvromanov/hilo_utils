@@ -1,5 +1,5 @@
 dist: trusty
-sudo: false
+sudo: required
 
 language: cpp
 
@@ -9,17 +9,18 @@ addons:
             - ubuntu-toolchain-r-test
 
 before_install:
-    - pip install --user cpp-coveralls libev-dev rrdtool-dev
+    - pip install --user cpp-coveralls
+    - sudo apt-get -qq -y install libev-dev rrdtool-dev
 
-compiler:  
+compiler:
     - gcc
 
-before_script:  
+before_script:
     - mkdir build
     - cd build
     - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=On -DTRAVIS=On
 
-script: 
+script:
     - make
     - ctest -V
 
