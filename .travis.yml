@@ -21,7 +21,7 @@ before_script:
     - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=On -DTRAVIS=On
 
 script:
-    - make VERBOSE=Y
+    - make
     - ctest -V
 
 after_success:
