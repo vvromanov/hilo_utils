@@ -75,6 +75,7 @@ include_directories(
 )
 
 add_library(${TARGET} STATIC
+        src/version.h
         src/ansi_escape_codes.h
         src/auto_mutex.h
         src/time_utils.h
