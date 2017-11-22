@@ -6,6 +6,9 @@ project(${TARGET})
 enable_language(C)
 enable_language(CXX)
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+find_package(LibEv REQUIRED)
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 

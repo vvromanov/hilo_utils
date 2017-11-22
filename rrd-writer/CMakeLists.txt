@@ -5,6 +5,7 @@ add_definitions(-DTX_PROGNAME="${TARGET}")
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${HILO_INCS_ALL}
+        ${LIBEV_INCLUDE_DIR}
         ${FILE_WRITER_INCS_ALL}
 )
 
@@ -19,7 +20,7 @@ target_link_libraries(${TARGET}
         hilo_utils
         rrd
         systemd
-        ev
+        ${LIBEV_LIBRARIES}
         )
 
 install(TARGETS ${TARGET} DESTINATION /opt/telexir/rrd-writer/bin COMPONENT rrd-writer)
