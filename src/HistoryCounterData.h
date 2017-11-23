@@ -43,34 +43,72 @@ public:
     }
 
     int64_t GetTotalCount() {
+        WRITE_LOCK;
         return total_count;
     }
 
     int64_t GetTotalVolume() {
+        WRITE_LOCK;
         return total_summ;
     }
 
     int64_t GetIntervalCount() {
+        WRITE_LOCK;
         update();
         return interval_count;
     }
 
     int64_t GetIntervalVolume() {
+        WRITE_LOCK;
         update();
         return interval_summ;
     }
 
     int64_t GetLastCount() {
+        WRITE_LOCK;
         update();
         return recs[(rec_index == 0) ? HistorySize : (rec_index - 1)].count;
     }
 
+    int64_t GetLastAvg() {
+        WRITE_LOCK;
+        update();
+        const HistoryRec &rec = recs[(rec_index == 0) ? HistorySize : (rec_index - 1)];
+        if (rec.count == 0) {
+            return 0;
+        } else {
+            return rec.sum / rec.count;
+        }
+    }
+
+    int64_t GetTotalAvg() {
+        WRITE_LOCK;
+        update();
+        if (total_count) {
+            return total_summ / total_count;
+        } else {
+            return 0;
+        }
+    }
+
+    int64_t GetIntervalAvg() {
+        WRITE_LOCK;
+        update();
+        if (interval_count) {
+            return interval_summ / interval_count;
+        } else {
+            return 0;
+        }
+    }
+
     int64_t GetLastVolume() {
+        WRITE_LOCK;
         update();
         return recs[(rec_index == 0) ? HistorySize : (rec_index - 1)].sum;
     }
 
     void DumpTable(std::ostream &s);
+    void DumpSimple(std::ostream &s);
     void DumpHtml(std::ostream &s);
 
 protected:

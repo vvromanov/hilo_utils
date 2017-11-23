@@ -70,30 +70,76 @@ void HistoryCounterData::AddBatch(int64_t c, int64_t v) {
 }
 
 
+void HistoryCounterData::DumpSimple(std::ostream &s) {
+    switch (GetType()) {
+        case HistoryVolume:
+            s << ' ' << GetLastCount();
+            s << ' ' << GetLastVolume();
+            s << ' ' << GetIntervalCount();
+            s << ' ' << GetIntervalVolume();
+            s << ' ' << GetTotalCount();
+            s << ' ' << GetTotalVolume();
+            break;
+        case HistoryCount:
+            s << ' ' << GetLastCount();
+            s << ' ' << GetIntervalCount();
+            s << ' ' << GetTotalCount();
+            break;
+        case HistoryCall:
+            s << ' ' << GetLastCount();
+            s << ' ' << GetLastAvg();
+            s << ' ' << GetIntervalCount();
+            s << ' ' << GetIntervalAvg();
+            s << ' ' << GetTotalCount();
+            s << ' ' << GetTotalAvg();
+            break;
+        case HistoryUnknown:
+            s << '?';
+    }
+}
+
 void HistoryCounterData::DumpTable(std::ostream &s) {
-    s << '|';
-    DumpNumber(s, GetLastCount(), 6);
-    s << '|';
-    if (GetType() == HistoryCount) {
-        s << "      ";
-    } else {
-        DumpNumber(s, GetLastVolume(), 6);
-    }
-    s << '|';
-    DumpNumber(s, GetIntervalCount(), 6);
-    s << '|';
-    if (GetType() == HistoryCount) {
-        s << "      ";
-    } else {
-        DumpNumber(s, GetIntervalVolume(), 6);
-    }
-    s << '|';
-    DumpNumber(s, GetTotalCount(), 6);
-    s << '|';
-    if (GetType() == HistoryCount) {
-        s << "      ";
-    } else {
-        DumpNumber(s, GetTotalVolume(), 6);
+    switch (GetType()) {
+        case HistoryCount:
+            s << '|';
+            DumpNumber(s, GetLastCount(), 6);
+            s << "|      |";
+            DumpNumber(s, GetIntervalCount(), 6);
+            s << "|      |";
+            DumpNumber(s, GetTotalCount(), 6);
+            s << "|      ";
+            break;
+        case HistoryVolume:
+            s << '|';
+            DumpNumber(s, GetLastCount(), 6);
+            s << '|';
+            DumpNumber(s, GetLastVolume(), 6);
+            s << '|';
+            DumpNumber(s, GetIntervalCount(), 6);
+            s << '|';
+            DumpNumber(s, GetIntervalVolume(), 6);
+            s << '|';
+            DumpNumber(s, GetTotalCount(), 6);
+            s << '|';
+            DumpNumber(s, GetTotalVolume(), 6);
+            s << '|';
+            break;
+        case HistoryCall:
+            s << '|';
+            DumpNumber(s, GetLastCount(), 6);
+            s << '|';
+            DumpNumber(s, GetLastAvg(), 6);
+            s << '|';
+            DumpNumber(s, GetIntervalCount(), 6);
+            s << '|';
+            DumpNumber(s, GetIntervalAvg(), 6);
+            s << '|';
+            DumpNumber(s, GetTotalCount(), 6);
+            s << '|';
+            DumpNumber(s, GetTotalAvg(), 6);
+            break;
+        case HistoryUnknown:
+            break;
     }
     s << "|" << std::endl;
 }
@@ -102,27 +148,51 @@ void HistoryCounterData::DumpHtml(std::ostream &s) {
     s << "</td><td align='right'>";
     DumpNumber(s, GetLastCount(), 6);
     s << "</td><td align='right'>";
-    if (GetType() == HistoryCount) {
-        s << "&nbsp;";
-    } else {
-        DumpNumber(s, GetLastVolume(), 6);
+    switch (GetType()) {
+        case HistoryCount:
+            s << "&nbsp;";
+            break;
+        case HistoryVolume:
+            DumpNumber(s, GetLastVolume(), 6);
+            break;
+        case HistoryCall:
+            DumpNumber(s, GetLastAvg(), 6);
+            break;
+        case HistoryUnknown:
+            break;
     }
-
     s << "</td><td align='right'>";
     DumpNumber(s, GetIntervalCount(), 6);
     s << "</td><td align='right'>";
-    if (GetType() == HistoryCount) {
-        s << "&nbsp;";
-    } else {
-        DumpNumber(s, GetIntervalVolume(), 6);
+    switch (GetType()) {
+        case HistoryCount:
+            s << "&nbsp;";
+            break;
+        case HistoryVolume:
+            DumpNumber(s, GetIntervalVolume(), 6);
+            break;
+        case HistoryCall:
+            DumpNumber(s, GetIntervalAvg(), 6);
+            break;
+        case HistoryUnknown:
+            break;
     }
+
     s << "</td><td align='right'>";
     DumpNumber(s, GetTotalCount(), 6);
     s << "</td><td align='right'>";
-    if (GetType() == HistoryCount) {
-        s << "&nbsp;";
-    } else {
-        DumpNumber(s, GetTotalVolume(), 6);
+    switch (GetType()) {
+        case HistoryCount:
+            s << "&nbsp;";
+            break;
+        case HistoryVolume:
+            DumpNumber(s, GetTotalVolume(), 6);
+            break;
+        case HistoryCall:
+            DumpNumber(s, GetTotalAvg(), 6);
+            break;
+        case HistoryUnknown:
+            break;
     }
     s << "</td></tr>" << std::endl;
 }

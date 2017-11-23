@@ -219,18 +219,53 @@ static bool rrd_update_history_counter(HistoryCounters::name_rec_t &counter) {
             "/");
     STRNCAT(filename, GetHistoryCounters().Lookup(counter.id));
     STRNCAT(filename, ".rrd");
+    HistoryCounterData *d = GetHistoryCounters().GetCounterPtr(counter.id);
     if (!is_file_exists(filename)) {
-        const char *ds[] = {
+        const char *ds_count[] = {
+                "DS:count:COUNTER:" TO_STRING(RRD_STEP) ":0:1000000000",
+        };
+        const char *ds_volume[] = {
                 "DS:count:COUNTER:" TO_STRING(RRD_STEP) ":0:1000000000",
                 "DS:volume:COUNTER:" TO_STRING(RRD_STEP) ":0:1000000000",
         };
-        if (!rrd_create_file(filename, 2, ds)) {
-            return false;
+        const char *ds_call[] = {
+                "DS:count:GAUGE:" TO_STRING(RRD_STEP) ":0:1000000000",
+                "DS:avg:GAUGE:" TO_STRING(RRD_STEP) ":0:1000000000",
+        };
+        switch (d->GetType()) {
+            case HistoryCount:
+                if (!rrd_create_file(filename, ARRAY_SIZE(ds_count), ds_count)) {
+                    return false;
+                }
+                break;
+            case HistoryVolume: //Учитываем количество и объем. Например, сколько данных передано по сети
+                if (!rrd_create_file(filename, ARRAY_SIZE(ds_volume), ds_volume)) {
+                    return false;
+                }
+                break;
+            case HistoryCall: //Учитываем количество и среднее время вызова
+                if (!rrd_create_file(filename, ARRAY_SIZE(ds_call), ds_call)) {
+                    return false;
+                }
+                break;
+            case HistoryUnknown:
+                return true;
         }
     }
-    HistoryCounterData *d = GetHistoryCounters().GetCounterPtr(counter.id);
     char update[256];
-    snprintf(update, sizeof(update), "%lu:%ld:%ld", time(NULL), d->GetTotalCount(), d->GetTotalVolume());
+    switch (d->GetType()) {
+        case HistoryCount:
+            snprintf(update, sizeof(update), "%lu:%ld", time(NULL), d->GetTotalCount());
+            break;
+        case HistoryVolume: //Учитываем количество и объем. Например, сколько данных передано по сети
+            snprintf(update, sizeof(update), "%lu:%ld:%ld", time(NULL), d->GetTotalCount(), d->GetTotalVolume());
+            break;
+        case HistoryCall: //Учитываем количество и среднее время вызова
+            snprintf(update, sizeof(update), "%lu:%ld:%ld", time(NULL), d->GetLastCount(), d->GetLastAvg());
+            break;
+        case HistoryUnknown:
+            return true;
+    }
     return rrd_update(filename, update);
 }
 
@@ -263,7 +298,7 @@ bool rrd_update_load() {
     struct sysinfo si;
     sysinfo(&si);
     char update[128];
-    snprintf(update, sizeof(update), "%lu:%g:%g:%g", time(NULL), (double)si.loads[0] / (1 << SI_LOAD_SHIFT),
-             (double)si.loads[1] / (1 << SI_LOAD_SHIFT), (double)si.loads[2] / (1 << SI_LOAD_SHIFT));
+    snprintf(update, sizeof(update), "%lu:%g:%g:%g", time(NULL), (double) si.loads[0] / (1 << SI_LOAD_SHIFT),
+             (double) si.loads[1] / (1 << SI_LOAD_SHIFT), (double) si.loads[2] / (1 << SI_LOAD_SHIFT));
     return rrd_update(RRD_CACHED_DIR "/load.rrd", update);
 }

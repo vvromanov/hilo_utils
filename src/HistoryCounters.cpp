@@ -46,7 +46,7 @@ void HistoryCounters::Dump(std::ostream &s, const char *prefix, counters_format_
             max_len = len;
         }
     }
-    max_len-=len;
+    max_len -= len;
 
     switch (format) {
         case format_nagios:
@@ -63,65 +63,70 @@ void HistoryCounters::Dump(std::ostream &s, const char *prefix, counters_format_
             break;
     }
     for (int i = 0; i < index_info.count; i++) {
-        const char *name = Lookup(index_info.index[i].id)+len;
+        const char *name = Lookup(index_info.index[i].id) + len;
         HistoryCounterData *c = GetCounterPtr(index_info.index[i].id);
         switch (format) {
             case format_nagios:
-                s << ' ' << name ;
+                s << ' ' << name;
                 s << '=' << c->GetLastCount();
-                if (c->GetType() == HistoryVolume) {
-                    s << ' ' << name;
-                    s << "_vol=" << c->GetLastVolume();
+                switch (c->GetType()) {
+                    case HistoryCount:
+                    case HistoryUnknown:
+                        break;
+                    case HistoryVolume:
+                        s << ' ' << name;
+                        s << "_vol=" << c->GetLastVolume();
+                        break;
+                    case HistoryCall:
+                        s << ' ' << name;
+                        s << "_avg=" << c->GetLastAvg();
+                        break;
                 }
                 break;
             case format_nagios_total:
                 s << ' ' << name;
                 s << '=' << c->GetTotalCount();
-                if (c->GetType() == HistoryVolume) {
-                    s << ' ' << name;
-                    s << "_vol=" << c->GetTotalVolume();
+                switch (c->GetType()) {
+                    case HistoryCount:
+                    case HistoryUnknown:
+                        break;
+                    case HistoryVolume:
+                        s << ' ' << name;
+                        s << "_vol=" << c->GetTotalVolume();
+                        break;
+                    case HistoryCall:
+                        s << ' ' << name;
+                        s << "_avg=" << c->GetTotalAvg();
+                        break;
                 }
                 break;
             case format_nagios_5m:
                 s << ' ' << name;
                 s << '=' << c->GetIntervalCount();
-                if (c->GetType() == HistoryVolume) {
-                    s << ' ' << name;
-                    s << "_vol=" << c->GetIntervalVolume();
+                switch (c->GetType()) {
+                    case HistoryCount:
+                    case HistoryUnknown:
+                        break;
+                    case HistoryVolume:
+                        s << ' ' << name;
+                        s << "_vol=" << c->GetIntervalVolume();
+                        break;
+                    case HistoryCall:
+                        s << ' ' << name;
+                        s << "_avg=" << c->GetIntervalAvg();
+                        break;
                 }
                 break;
             case format_simple:
                 s << name;
-                s << ' ' << c->GetLastCount();
-                if (c->GetType() == HistoryVolume) {
-                    s << ' ' << c->GetLastVolume();
-                }
-                s << ' ' << c->GetIntervalCount();
-                if (c->GetType() == HistoryVolume) {
-                    s << ' ' << c->GetIntervalVolume();
-                }
-                s << ' ' << c->GetTotalCount();
-                if (c->GetType() == HistoryVolume) {
-                    s << ' ' << c->GetTotalVolume();
-                }
+                c->DumpSimple(s);
                 s << std::endl;
                 break;
             case format_raw:
                 if (0 != strcasecmp(Lookup(index_info.index[i].id), prefix)) {
                     continue;
                 }
-                s << c->GetLastCount();
-                if (c->GetType() == HistoryVolume) {
-                    s << ' ' << c->GetLastVolume();
-                }
-                s << ' ' << c->GetIntervalCount();
-                if (c->GetType() == HistoryVolume) {
-                    s << ' ' << c->GetIntervalVolume();
-                }
-                s << ' ' << c->GetTotalCount();
-                if (c->GetType() == HistoryVolume) {
-                    s << ' ' << c->GetTotalVolume();
-                }
+                c->DumpSimple(s);
                 s << std::endl;
                 break;
             case format_table:
