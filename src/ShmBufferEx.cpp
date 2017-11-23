@@ -127,7 +127,7 @@ void ShmBufferExData::commit(const size_t data_size) {
 size_t ShmBufferExData::read(uint8_t *d, const size_t data_size) {
     size_t read_size = std::min(data_size, this->data_size());
     memcpy(d, circular_data + head, read_size);
-    free(read_size);
+    free_head(read_size);
     return read_size;
 }
 
@@ -179,7 +179,7 @@ bool ShmBufferExData::GetFirst(uint8_t *data, shm_record_size_t max_size, shm_re
     }
     memcpy(data, r->Data(), size);
     if (delete_record) {
-        free(r->Size());
+        free_head(r->Size());
         count--;
     }
     return true;

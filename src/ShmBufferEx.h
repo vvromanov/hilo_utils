@@ -89,7 +89,7 @@ public:
         return &circular_data[head];
     }
 
-    void free(size_t _size) {
+    void free_head(size_t _size) {
         head += _size;
         if (head >= buffer_size) {
             head -= buffer_size;
@@ -210,7 +210,7 @@ protected:
         tmp_drop_msg_volume += rec->Size();
         total_drop_msg_volume += rec->Size();
         --count;
-        free(rec->Size());
+        free_head(rec->Size());
         return true;
     }
 
@@ -270,7 +270,7 @@ public:
 
         void Free(size_t s) {
             WRITE_LOCK;
-            GetData()->free(s);
+            GetData()->free_head(s);
         }
 
         const ShmBufferRecord *getRecord(uint64_t vptr) {
