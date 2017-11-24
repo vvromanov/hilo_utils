@@ -24,6 +24,7 @@ static void mainPeriodic(EV_TIMER_PARAMS) {
         rrd_update_cpu();
         rrd_update_memory();
         rrd_update_load();
+        rrd_update_counters("call.", counter_incremental);
         rrd_update_counters("diameter.", counter_incremental);
         rrd_update_counters("dns.", counter_incremental);
         rrd_update_counters("dtf.", counter_incremental);
