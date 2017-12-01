@@ -1,8 +1,9 @@
 #include "LogStorage.h"
 #include "time_utils.h"
+#include "SysInfoMemory.h"
 
 log_source_t log_source = -1;
-size_t opt_log_storage_size = 500 * 1024 * 1024;
+size_t opt_log_storage_size = GetMemoryPart(3);
 
 Counters &LogCounters() {
     static Counters logCounters;

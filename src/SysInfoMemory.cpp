@@ -2,6 +2,7 @@
 #include <log.h>
 #include <string.h>
 #include <common_utils.h>
+#include <sys/sysinfo.h>
 #include "SysInfoMemory.h"
 
 #define MEM_INFO "/proc/meminfo"
@@ -44,4 +45,11 @@ bool mem_stat_read(mem_stat_t &ms) {
     ms.Used = (ms.MemTotal + ms.SwapTotal) -
               (ms.MemFree + ms.SwapFree + ms.Buffers + ms.Cached + ms.SReclaimable + ms.SUnreclaim + ms.Shmem);
     return true;
+}
+
+
+int64_t GetMemoryPart(int percentage) {
+    struct sysinfo info;
+    sysinfo(&info);
+    return (int64_t)info.totalram * info.mem_unit * percentage / 100;
 }
