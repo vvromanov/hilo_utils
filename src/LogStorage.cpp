@@ -3,7 +3,8 @@
 #include "SysInfoMemory.h"
 
 log_source_t log_source = -1;
-size_t opt_log_storage_size = GetMemoryPart(3);
+
+size_t opt_log_storage_size = std::min(GetMemoryPart(5), (size_t)500 * 1024 * 1024);
 
 Counters &LogCounters() {
     static Counters logCounters;
@@ -42,7 +43,8 @@ ShmBufferEx &LogStorage() {
             logStorage.Open(name, opt_log_storage_size);
         }
         if (!logStorage.IsOpened()) {
-            fprintf(stderr, "Can`t open log storage %s size=%lu [E%d] %s\n", name, opt_log_storage_size, errno, strerror(errno));
+            fprintf(stderr, "Can`t open log storage %s size=%lu [E%d] %s\n", name, opt_log_storage_size, errno,
+                    strerror(errno));
         } else {
             if (opt_log_level == LOG_LEVEL_PARN) {
                 fprintf(stderr, "Log storage opened\n");
@@ -84,7 +86,7 @@ bool log_write_record(log_level_t level, const char *message, int len) {
         len = strlen(message);
     }
     c.Add(message, len);
-  //  fprintf(stderr, "log_write_record - call LogStorage().Push(c)\n");
+    //  fprintf(stderr, "log_write_record - call LogStorage().Push(c)\n");
     bool res = LogStorage().Push(c);
     in_log_write = false;
     return res;

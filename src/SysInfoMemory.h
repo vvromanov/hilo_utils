@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 
 #define MEM_STATS \
         MEM_STAT(MemTotal)\
@@ -21,4 +22,4 @@ typedef struct {
 } mem_stat_t;
 
 bool mem_stat_read(mem_stat_t& ms);
-int64_t GetMemoryPart(int percentage);
+size_t GetMemoryPart(int percentage);

@@ -48,8 +48,8 @@ bool mem_stat_read(mem_stat_t &ms) {
 }
 
 
-int64_t GetMemoryPart(int percentage) {
+size_t GetMemoryPart(int percentage) {
     struct sysinfo info;
     sysinfo(&info);
-    return (int64_t)info.totalram * info.mem_unit * percentage / 100;
+    return (size_t)info.totalram * info.mem_unit * percentage / 100;
 }
