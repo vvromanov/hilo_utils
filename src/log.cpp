@@ -175,17 +175,19 @@ void log_write_str(log_level_t level, const char *string, int len) {
     while (len > 0 && string[len - 1] == '\n') {
         --len;
     }
-    ++log_counters[level & LOG_LEVEL_MASK];
+    level = (log_level_t) (level & LOG_LEVEL_MASK);
+    ++log_counters[level];
     log_write_record(level, string, len);
     if (opt_log_to_console) {
         if (opt_log_no_colored) {
             fprintf(log_file, "%s | %*s\n", log_level_to_name(level), len, string);
         } else {
-            fprintf(log_file, "%s%s | %*s" ANSI_ATTR_RESET "\n", log_level_to_color(level), log_level_to_name(level), len,
+            fprintf(log_file, "%s%s | %*s" ANSI_ATTR_RESET "\n", log_level_to_color(level), log_level_to_name(level),
+                    len,
                     string);
         }
     }
-    if ((level & LOG_LEVEL_MASK) <= opt_log_level_to_syslog) {
+    if (level <= opt_log_level_to_syslog) {
         int l = syslog_level(level);
 
         if (!syslog_opened) {
@@ -221,7 +223,9 @@ void log_writev(log_level_t level, const char *format, va_list ap) {
             int elen = snprintf(etmp, sizeof(etmp), " | E%d - ", errno);
             strncpy(tmp + len, etmp, sizeof(tmp) - len - 1);
             len += elen;
-            strncpy(tmp + len, strerror(errno), sizeof(tmp) - len - 1);
+            const char *szErr = strerror(errno);
+            strncpy(tmp + len, szErr, sizeof(tmp) - len - 1);
+            len += strlen(szErr);
         }
         log_write_str(level, tmp, len);
         in_log_writev = false;
