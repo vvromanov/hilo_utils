@@ -59,6 +59,10 @@ public:
         return instance;
     }
 
+    const std::string& GetName() const {
+        return name;
+    }
+
 protected:
     void clear();
     static bool is_init_needed(shm_header_t &h);

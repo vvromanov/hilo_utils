@@ -216,7 +216,7 @@ TEST_F(ShmBufferExTest, AddGet) {
 
     BZERO_S(data2);
     shm_record_size_t size = 0;
-    EXPECT_TRUE(test.GetFirst(data2, sizeof(data2), size));
+    EXPECT_TRUE(test.Pop(data2, sizeof(data2), size));
     EXPECT_EQ(sizeof(data2), size);
     EXPECT_EQ(0, memcmp(data1, data2, sizeof(data1)));
 
@@ -226,7 +226,7 @@ TEST_F(ShmBufferExTest, AddGet) {
 
     BZERO_S(data2);
     size = 0;
-    EXPECT_TRUE(test.GetFirst(data2, sizeof(data2), size));
+    EXPECT_TRUE(test.Pop(data2, sizeof(data2), size));
     EXPECT_EQ(sizeof(data2), size);
     EXPECT_EQ(0, memcmp(data1, data2, sizeof(data1)));
     BZERO_S(data2);
@@ -235,7 +235,7 @@ TEST_F(ShmBufferExTest, AddGet) {
     EXPECT_EQ(2, test.TotalCount());
 
 
-    EXPECT_FALSE(test.GetFirst(data2, sizeof(data2), size));
+    EXPECT_FALSE(test.Pop(data2, sizeof(data2), size));
     EXPECT_EQ(0, size);
 }
 
@@ -298,7 +298,7 @@ private:
     }
 }  __attribute__ ((__packed__));
 
-TEST_F(ShmBufferExTest, GetFirst) {
+TEST_F(ShmBufferExTest, Pop) {
     ShmBufferEx test;
     EXPECT_TRUE(test.Open(TestShmName(), 1));
     size_t free_size = test.FreeSize();
@@ -312,25 +312,25 @@ TEST_F(ShmBufferExTest, GetFirst) {
 
     ShmTestData d2;
     shm_record_size_t size;
-    EXPECT_TRUE(test.GetFirst(d2.Data(), ShmTestData::MaxTestDataSize, size));
+    EXPECT_TRUE(test.Pop(d2.Data(), ShmTestData::MaxTestDataSize, size));
     EXPECT_TRUE(d2.Check());
     EXPECT_EQ(0, d2.Vptr());
     EXPECT_EQ(d2.Size(), size);
 
     d2.Clear();
-    EXPECT_TRUE(test.GetFirst(d2.Data(), ShmTestData::MaxTestDataSize, size));
+    EXPECT_TRUE(test.Pop(d2.Data(), ShmTestData::MaxTestDataSize, size));
     EXPECT_TRUE(d2.Check());
     EXPECT_EQ(1, d2.Vptr());
     EXPECT_EQ(d2.Size(), size);
 
     d2.Clear();
-    EXPECT_TRUE(test.GetFirst(d2.Data(), ShmTestData::MaxTestDataSize, size));
+    EXPECT_TRUE(test.Pop(d2.Data(), ShmTestData::MaxTestDataSize, size));
     EXPECT_TRUE(d2.Check());
     EXPECT_EQ(2, d2.Vptr());
     EXPECT_EQ(d2.Size(), size);
 
     d2.Clear();
-    EXPECT_FALSE(test.GetFirst(d2.Data(), ShmTestData::MaxTestDataSize, size));
+    EXPECT_FALSE(test.Pop(d2.Data(), ShmTestData::MaxTestDataSize, size));
 }
 
 TEST_F(ShmBufferExTest, Peek) {
@@ -347,13 +347,13 @@ TEST_F(ShmBufferExTest, Peek) {
 
     ShmTestData d2;
     shm_record_size_t size;
-    EXPECT_TRUE(test.GetFirst(d2.Data(), ShmTestData::MaxTestDataSize, size, false));
+    EXPECT_TRUE(test.Pop(d2.Data(), ShmTestData::MaxTestDataSize, size, false));
     EXPECT_TRUE(d2.Check());
     EXPECT_EQ(0, d2.Vptr());
     EXPECT_EQ(d2.Size(), size);
 
     d2.Clear();
-    EXPECT_TRUE(test.GetFirst(d2.Data(), ShmTestData::MaxTestDataSize, size, false));
+    EXPECT_TRUE(test.Pop(d2.Data(), ShmTestData::MaxTestDataSize, size, false));
     EXPECT_TRUE(d2.Check());
     EXPECT_EQ(0, d2.Vptr());
     EXPECT_EQ(d2.Size(), size);
@@ -373,20 +373,20 @@ TEST_F(ShmBufferExTest, Fill) {
     EXPECT_FALSE(test.Push(d1.Data(), d1.Size()));
 
     test.SetOverflovBehavior(drop_new, false);
-    EXPECT_EQ(0, test.DropCount());
+    EXPECT_EQ(0, test.TotalDropCount());
     EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
-    EXPECT_EQ(1, test.DropCount());
+    EXPECT_EQ(1, test.TotalDropCount());
 
     shm_record_size_t size;
     ShmTestData d2;
-    EXPECT_TRUE(test.GetFirst(d2.Data(), ShmTestData::MaxTestDataSize, size, false));
+    EXPECT_TRUE(test.Pop(d2.Data(), ShmTestData::MaxTestDataSize, size, false));
     EXPECT_EQ(0, d2.Vptr());
 
     test.SetOverflovBehavior(drop_old, false);
     EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
-    EXPECT_EQ(2, test.DropCount());
+    EXPECT_EQ(2, test.TotalDropCount());
     d2.Clear();
-    EXPECT_TRUE(test.GetFirst(d2.Data(), ShmTestData::MaxTestDataSize, size, false));
+    EXPECT_TRUE(test.Pop(d2.Data(), ShmTestData::MaxTestDataSize, size, false));
     EXPECT_EQ(1, d2.Vptr());
 }
 
@@ -401,16 +401,16 @@ TEST_F(ShmBufferExTest, ReadWriteCycleEx2) {
 
         ShmTestData d2;
         shm_record_size_t size = 0;
-        EXPECT_FALSE(test2.GetFirst(d2.Data(), d1.Size() - 1, size));
+        EXPECT_FALSE(test2.Pop(d2.Data(), d1.Size() - 1, size));
         EXPECT_EQ(d1.Size(), size);
 
         size = 0;
-        EXPECT_TRUE(test2.GetFirst(d2.Data(), ShmTestData::MaxTestDataSize, size));
+        EXPECT_TRUE(test2.Pop(d2.Data(), ShmTestData::MaxTestDataSize, size));
         EXPECT_EQ(d1.Size(), size);
         EXPECT_TRUE(d2.Check());
         EXPECT_EQ(i, d2.Vptr());
 
-        EXPECT_FALSE(test2.GetFirst(d2.Data(), ShmTestData::MaxTestDataSize, size));
+        EXPECT_FALSE(test2.Pop(d2.Data(), ShmTestData::MaxTestDataSize, size));
         EXPECT_EQ(0, size);
     }
 }
@@ -439,7 +439,7 @@ TEST_F(ShmBufferExTest, GetVptr) {
     for (int i = 0; i < 1000; i++) {
         d1.SetVptr(test.GetEndVptr());
         EXPECT_TRUE(test.Push(d1.Data(), d1.Size()));
-        EXPECT_EQ(test.DropCount() * ShmBufferRecord::RecordSize(d1.Size()), test.GetBeginVptr());
+        EXPECT_EQ(test.TotalDropCount() * ShmBufferRecord::RecordSize(d1.Size()), test.GetBeginVptr());
         EXPECT_EQ(test.TotalCount() * ShmBufferRecord::RecordSize(d1.Size()), test.GetEndVptr());
     }
 
@@ -467,7 +467,7 @@ TEST_F(ShmBufferExTest, GetByVptrFull) {
     for (int i = 0; i < 1000; i++) {
         td.SetVptr(test.GetEndVptr());
         EXPECT_TRUE(test.Push(td.Data(), td.Size()));
-        EXPECT_EQ(test.DropCount() * ShmBufferRecord::RecordSize(td.Size()), test.GetBeginVptr());
+        EXPECT_EQ(test.TotalDropCount() * ShmBufferRecord::RecordSize(td.Size()), test.GetBeginVptr());
         EXPECT_EQ(test.TotalCount() * ShmBufferRecord::RecordSize(td.Size()), test.GetEndVptr());
 
         for (uint64_t j = test.GetBeginVptr();

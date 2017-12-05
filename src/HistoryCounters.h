@@ -48,6 +48,15 @@ public:
     index_t LookupIndex(const char *name);
     HistoryCounterData *GetCounterPtr(const char *name);
 
+    void GetCounterInfo(const char *name, history_counter_info_t& info) {
+        HistoryCounterData *p=GetCounterPtr(name);
+        if (p) {
+            p->GetInfo(info);
+        } else {
+            BZERO_S(info);
+        }
+    }
+
     HistoryCounterData *GetCounterPtr(index_t index) {
         return GetData()->counters + index;
     }
@@ -139,6 +148,11 @@ public:
     int64_t GetTotalVolume() {
         Init();
         return d->GetTotalVolume();
+    }
+
+    void GetInfo(history_counter_info_t& info) {
+        Init();
+        return d->GetInfo(info);
     }
 
     void Init() {

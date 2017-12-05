@@ -18,6 +18,15 @@ typedef enum {
     HistoryCall //Учитываем количество и среднее время вызова
 } HistoryCounterType_t;
 
+typedef struct {
+    int64_t last_count;
+    int64_t last_summ;
+    int64_t interval_count;
+    int64_t interval_summ;
+    int64_t total_count;
+    int64_t total_summ;
+} history_counter_info_t;
+
 class HistoryCounterData {
 public:
     constexpr static uint32_t HistorySize = 60 * 5;
@@ -105,6 +114,17 @@ public:
         WRITE_LOCK;
         update();
         return recs[(rec_index == 0) ? HistorySize : (rec_index - 1)].sum;
+    }
+
+    void GetInfo(history_counter_info_t &info) {
+        WRITE_LOCK;
+        int last_index = (rec_index == 0) ? HistorySize : (rec_index - 1);
+        info.last_count = recs[last_index].count;
+        info.last_summ = recs[last_index].sum;
+        info.interval_count = interval_count;
+        info.interval_summ = interval_summ;
+        info.total_count = total_count;
+        info.total_summ = total_summ;
     }
 
     void DumpTable(std::ostream &s);

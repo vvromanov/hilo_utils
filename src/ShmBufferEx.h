@@ -41,15 +41,14 @@ public:
             volatile uint64_t head_offset;
             volatile uint64_t tail_offset;
             volatile shm_record_size_t last_record_size;
-            volatile uint64_t tmp_drop_msg_count;
-            volatile uint64_t tmp_drop_msg_volume;
-            volatile uint64_t total_drop_msg_count;
-            volatile uint64_t total_drop_msg_volume;
-            volatile uint64_t tmp_msg_count;
-            volatile uint64_t tmp_msg_volume;
-            volatile uint64_t total_msg_count;
-            volatile uint64_t total_msg_volume;
+            volatile uint64_t total_drop_count;
+            volatile uint64_t total_error_count;
+            volatile uint64_t tmp_drop_count;
+            volatile uint64_t tmp_drop_volume;
+            volatile uint64_t tmp_count;
+            volatile uint64_t tmp_volume;
             volatile uint64_t count;
+            volatile uint64_t total_count;
             on_overflov_t on_overflow;
             reader_info_t reader[MaxReaderCount];
             bool drop_is_ok;
@@ -63,17 +62,14 @@ public:
         head = tail = 0;
         head_offset = tail_offset = 0;
         last_record_size = 0;
-        tmp_drop_msg_count = 0;
-        tmp_drop_msg_volume = 0;
-        total_drop_msg_count = 0;
-        total_drop_msg_volume = 0;
-        tmp_msg_count = 0;
-        tmp_msg_volume = 0;
+        tmp_drop_count = 0;
+        tmp_drop_volume = 0;
+        tmp_count = 0;
+        tmp_volume = 0;
         count = 0;
-        total_msg_count = 0;
-        total_msg_volume = 0;
-        total_msg_count = 0;
-        total_msg_volume = 0;
+        total_count = 0;
+        total_drop_count = 0;
+        total_error_count = 0;
         on_overflow = return_error;
         memset(reader, 0, sizeof(reader));
     }
@@ -109,6 +105,11 @@ public:
         }
     }
 
+    size_t get_used_bp() const {
+        return data_size()*10000/capacity();
+    }
+
+
     size_t free_size() const {
         return capacity() - data_size();
     }
@@ -123,7 +124,7 @@ public:
         return Push(ShmChunks(data, size));
     }
 
-    bool GetFirst(uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size, bool delete_record = true);
+    bool Pop(uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size, bool delete_record = true);
     bool Get(vptr_t &pos, direction_t dir, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size);
     bool Get(vptr_t &pos, vptr_t &lost, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size);
     bool Get(int reader_index, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size);
@@ -179,16 +180,19 @@ public:
         return (const ShmBufferRecord *) (circular_data + (vptr - head_offset));
     }
 
-    void TransferDrops(HistoryCounter &c) {
-        c.AddBatch(tmp_drop_msg_count, tmp_drop_msg_volume);
-        tmp_drop_msg_count = 0;
-        tmp_drop_msg_volume = 0;
+    void TransferDrops(HistoryCounter &drop, HistoryCounter &error) {
+        drop.AddBatch(tmp_drop_count, tmp_drop_volume);
+        if (!drop_is_ok) {
+            error.AddBatch(tmp_drop_count, tmp_drop_volume);
+        }
+        tmp_drop_count = 0;
+        tmp_drop_volume = 0;
     }
 
     void TransferMsg(HistoryCounter &c) {
-        c.AddBatch(tmp_msg_count, tmp_msg_volume);
-        tmp_msg_count = 0;
-        tmp_msg_volume = 0;
+        c.AddBatch(tmp_count, tmp_volume);
+        tmp_count = 0;
+        tmp_volume = 0;
     }
 
 protected:
@@ -205,11 +209,13 @@ protected:
         if (rec == NULL) {
             return false;
         }
-        ++tmp_drop_msg_count;
-        ++total_drop_msg_count;
-        tmp_drop_msg_volume += rec->Size();
-        total_drop_msg_volume += rec->Size();
+        ++tmp_drop_count;
+        tmp_drop_volume += rec->Size();
         --count;
+        ++total_drop_count;
+        if (!drop_is_ok) {
+            ++total_error_count;
+        }
         free_head(rec->Size());
         return true;
     }
@@ -224,14 +230,26 @@ protected:
     }
 };
 
+typedef struct {
+    char name[NAME_MAX];
+    size_t count;
+    size_t data_size;
+    size_t capacity;
+    history_counter_info_t drop_history;
+    history_counter_info_t message_history;
+    history_counter_info_t error_history;
+} queue_stat_t;
 
 class ShmBufferEx : public ShmSimple<ShmBufferExData> {
     HistoryCounter cMsgHistory;
-    HistoryCounter cPushFailedHistory;
+    HistoryCounter cErrorHistory;
     HistoryCounter cDropHistory;
     HistoryCounterLocal cPushFailedLocal;
 
     LazyCounter cMsgCount;
+    LazyCounter cUsedBp;
+    LazyCounter cUsed;
+    LazyCounter cCapacity;
 public:
     bool Open(const char *name, size_t size);
 
@@ -250,10 +268,11 @@ public:
         return GetData()->data_size();
     }
 
-    size_t DropCount() {
+    size_t GetUsedBp() {
         READ_LOCK;
-        return GetData()->total_drop_msg_count;
+        return GetData()->get_used_bp();
     }
+
 
 #ifdef FOR_TEST
 
@@ -290,7 +309,15 @@ public:
     }
 
     uint64_t TotalCount() {
-        return GetData()->total_msg_count;
+        return GetData()->total_count;
+    }
+
+    uint64_t TotalDropCount() {
+        return GetData()->total_drop_count;
+    }
+
+    uint64_t TotalErrorCount() {
+        return GetData()->total_error_count;
     }
 
     bool Push(const ShmChunks &chunks) {
@@ -310,14 +337,14 @@ public:
         return Push(ShmChunks(data, size));
     }
 
-    bool GetFirst(uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size, bool delete_record = true) {
+    bool Pop(uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size, bool delete_record = true) {
         ShmBufferExData *p = GetData();
         if (p->count == 0) {
             size = 0;
             return false;
         }
         WRITE_LOCK;
-        return p->GetFirst(data, max_size, size, delete_record);
+        return p->Pop(data, max_size, size, delete_record);
     }
 
     bool Get(vptr_t &pos, direction_t dir, uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size) {
@@ -384,9 +411,14 @@ public:
         return GetData()->GetPrevVptr(pos);
     }
 
-    static void DumpStatHeader(std::ostream &s);
-    void DumpStat(std::ostream &s);
+    static void DumpStatHeader(std::ostream &s, bool asHtml);
+    void GetStat(queue_stat_t& stat);
+    static void GetStat(const char* name, queue_stat_t& stat);
+    static void DumpStat(const queue_stat_t& stat, std::ostream &s, bool asHtml);
+    static void DumpStatTable(std::ostream &s, bool asHtml);
+    static status_t CheckAllStatus(std::ostream &s, status_format_t format);
     status_t CheckStatus(std::ostream &s, status_format_t format);
+    static status_t CheckStatus(const queue_stat_t& stat, std::ostream &s, status_format_t format);
     void UpdateCounters();
 };
 

@@ -157,7 +157,7 @@ void HistoryCounters::DumpHtml(std::ostream &s, const char *prefix) {
             "      <tr><td rowspan='2'>Counter name</td><td colspan='2'>Last second</td><td colspan='2'>Last 5 mins</td><td colspan='2'>Total</td></tr>\n"
             "      <tr><td>Count</td><td>Volume</td><td>Count</td><td>Volume</td><td>Count</td><td>Volume</td></tr>\n"
             "    </thead>\n"
-            "  <tbody>\n";
+            "  <tbody align='right'>\n";
     for (int i = 0; i < index_info.count; i++) {
         s << "<tr><td>" << Lookup(index_info.index[i].id);
         HistoryCounterData *c = GetCounterPtr(index_info.index[i].id);

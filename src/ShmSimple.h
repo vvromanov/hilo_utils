@@ -30,6 +30,7 @@ public:
             STRNCAT(fname, name);
             struct stat stat_buf;
             if (0 != stat(fname, &stat_buf)) {
+                log_write(LOG_LEVEL_ERR,"Can't open shm data %s. Size not specified, but file not exists", name);
                 return false;
             }
             size = stat_buf.st_size;
@@ -48,11 +49,12 @@ public:
     }
 
     bool OpenMirror(const char *name, ssize_t size, size_t header_size) {
-        if (size < 0) {
+        if (size <= 0) {
             char fname[NAME_MAX] = SHM_LOCATION;
             STRNCAT(fname, name);
             struct stat stat_buf;
             if (0 != stat(fname, &stat_buf)) {
+                log_write(LOG_LEVEL_ERR,"Can't open mirror shm data %s. Size not specified, but file not exists", name);
                 return false;
             }
             size = stat_buf.st_size;

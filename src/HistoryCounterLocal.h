@@ -3,8 +3,8 @@
 #include "HistoryCounters.h"
 
 class HistoryCounterLocal {
-    int64_t count;
-    int64_t volume;
+    volatile int64_t count;
+    volatile int64_t volume;
 public:
     HistoryCounterLocal() : count(0), volume(0) {
     }

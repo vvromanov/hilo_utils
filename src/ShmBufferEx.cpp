@@ -1,6 +1,17 @@
 #include <iomanip>
 #include "ShmBufferEx.h"
 #include "DumpUtils.h"
+#include "CDictionary.h"
+#include "HistoryCounterData.h"
+#include "file_utils.h"
+
+#define CNAME_MESSAGE  "shm.queue.%s.message"
+#define CNAME_ERROR    "shm.queue.%s.error"
+#define CNAME_DROP     "shm.queue.%s.drop"
+#define CNAME_COUNT    "shm.queue.%s.count"
+#define CNAME_USED_BP     "shm.queue.%s.used_bp"
+#define CNAME_USED     "shm.queue.%s.used"
+#define CNAME_CAPACITY     "shm.queue.%s.capacity"
 
 bool ShmBufferEx::Open(const char *name, size_t _size) {
     if (_size) {
@@ -10,33 +21,45 @@ bool ShmBufferEx::Open(const char *name, size_t _size) {
         return false;
     }
     char cName[NAME_MAX];
-    STRNCPY(cName, "shm.queue.");
-    STRNCAT(cName, name);
-    char *end = cName + strlen(cName);
-    strcpy(end, ".Msg");
+    snprintf(cName, sizeof(cName), CNAME_MESSAGE, name);
     cMsgHistory.SetName(cName, HistoryVolume);
-    strcpy(end, ".Push");
-    cPushFailedHistory.SetName(cName, HistoryCount);
-    strcpy(end, ".error.drops");
-    cDropHistory.SetName(cName, HistoryCount);
-    strcpy(end, ".message_count");
+    snprintf(cName, sizeof(cName), CNAME_DROP, name);
+    cDropHistory.SetName(cName, HistoryVolume);
+    snprintf(cName, sizeof(cName), CNAME_ERROR, name);
+    cErrorHistory.SetName(cName, HistoryVolume);
+    snprintf(cName, sizeof(cName), CNAME_COUNT, name);
     cMsgCount.SetName(cName, counter_value);
-
+    snprintf(cName, sizeof(cName), CNAME_USED_BP, name);
+    cUsedBp.SetName(cName, counter_value);
+    snprintf(cName, sizeof(cName), CNAME_USED, name);
+    cUsed.SetName(cName, counter_value);
+    snprintf(cName, sizeof(cName), CNAME_CAPACITY, name);
+    cCapacity.SetName(cName, counter_value);
     return true;
 }
 
 void ShmBufferEx::UpdateCounters() {
     cMsgCount = Count();
+    cUsedBp = GetUsedBp();
+    cUsed = DataSize();
+    cCapacity = Capacity();
     WRITE_LOCK;
-    GetData()->TransferDrops(cDropHistory);
+    GetData()->TransferDrops(cDropHistory, cErrorHistory);
     GetData()->TransferMsg(cMsgHistory);
 }
 
+
 status_t ShmBufferEx::CheckStatus(std::ostream &s, status_format_t format) {
+    queue_stat_t stat;
+    GetStat(stat);
+    return CheckStatus(stat, s, format);
+}
+
+status_t ShmBufferEx::CheckStatus(const queue_stat_t &stat, std::ostream &s, status_format_t format) {
     status_t status = status_ok;
-    int full = (DataSize() * 100 / Capacity());
+    int full = stat.data_size * 100 / stat.capacity;
     if (format == status_nagios || full > 80) {
-        s << "Queue " << name << " " << full << "% full" << std::endl;
+        s << "Queue " << stat.name << " " << full << "% full" << std::endl;
     }
     if (full > 80) {
         status = status_warning;
@@ -44,13 +67,12 @@ status_t ShmBufferEx::CheckStatus(std::ostream &s, status_format_t format) {
     if (full > 90) {
         status = status_critical;
     }
-    bool drop_is_ok = GetData()->drop_is_ok;
-    if ((cPushFailedHistory.GetIntervalCount() + drop_is_ok ? 0 : cDropHistory.GetIntervalCount()) > 0) {
-        if ((cPushFailedHistory.GetLastCount() + drop_is_ok ? 0 : cDropHistory.GetLastCount()) > 0) {
-            s << "Queue " << name << " now has errors" << std::endl;
+    if (stat.error_history.interval_count > 0) {
+        if (stat.error_history.last_count > 0) {
+            s << "Queue " << stat.name << " now has errors" << std::endl;
             status = std::max(status, status_critical);
         } else {
-            s << "Queue " << name << " has errors in last " << HistoryCounterData::HistorySize << " seconds"
+            s << "Queue " << stat.name << " has errors in last " << HistoryCounterData::HistorySize << " seconds"
               << std::endl;
             status = std::max(status, status_warning);
         }
@@ -58,47 +80,216 @@ status_t ShmBufferEx::CheckStatus(std::ostream &s, status_format_t format) {
     return status;
 }
 
-void ShmBufferEx::DumpStatHeader(std::ostream &s) {
-    s << '|' << std::setw(20) << "Queue" << "|Msg in|       |       cps          |    5 min avg cps   |       Total        |";
-    s << std::endl;
-    s << '|' << std::setw(20) << " Name" << "| queue| Used %|MsgSnt|Volume|Errors|MsgSnt|Volume|Errors|MsgSnt|Volume|Errors|";
-    s << std::endl;
+void ShmBufferEx::DumpStatHeader(std::ostream &s, bool asHtml) {
+    if (asHtml) {
+        const char *szIndent = "    ";
+        s << szIndent << "<table border='1' cellspacing='0'>\n";
+        s << szIndent << "  <thead>\n";
+        s << szIndent
+          << "    <tr><td rowspan='2'>Name</td><td rowspan='2'>Messages<br/>in queue</td><td rowspan='2'>Queue<br/>size</td><td rowspan='2'>Space<br/>used, %</td><td colspan='3'>Last second</td><td colspan='3'>Last 5 minutes</td><td colspan='3'>Total</td></tr>";
+        s << szIndent << "    <tr>\n";
+        s << szIndent << "      <td>MsgSend</td><td>Volume</td><td>Errors</td>\n";
+        s << szIndent << "      <td>MsgSend</td><td>Volume</td><td>Errors</td>\n";
+        s << szIndent << "      <td>MsgSend</td><td>Volume</td><td>Errors</td>\n";
+        s << szIndent << "    </tr>\n";
+        s << szIndent << "  </thead>\n";
+        s << szIndent << "  <tbody align='right'>\n";
+    } else {
+        s << '|' << std::setw(20) << "Queue"
+          << "|Msg in|Queue | Space |    Last second     |  Last 5 minutes    |       Total        |";
+        s << std::endl;
+        s << '|' << std::setw(20) << " Name"
+          << "| queue| size | Used %|MsgSnt|Volume|Errors|MsgSnt|Volume|Errors|MsgSnt|Volume|Errors|";
+        s << std::endl;
+    }
 }
 
-void ShmBufferEx::DumpStat(std::ostream &s) {
-    s << '|' << std::setw(20) << name;
-    s << '|';
-    DumpNumber(s, Count(), 6);
-    s << '|';
-    int full = (DataSize() * 10000 / Capacity());
+
+#define COUNTER_PREFIX "shm.queue."
+#define COUNTER_SUFFIX ".capacity"
+
+constexpr static const int prefix_len = strlen(COUNTER_PREFIX);
+constexpr static const int suffix_len = strlen(COUNTER_SUFFIX);
+
+void ShmBufferEx::DumpStatTable(std::ostream &s, bool asHtml) {
+    Counters::index_info_t index_info;
+
+    ValueCounters().GetCategory(COUNTER_PREFIX, index_info);
+    if (index_info.count == 0) {
+        return;
+    }
+    DumpStatHeader(s, asHtml);
+    for (int i = 0; i < index_info.count; i++) {
+        const char *c_name = ValueCounters().Lookup(index_info.index[i].id);
+        const char *p = strstr(c_name, COUNTER_SUFFIX);
+        if (NULL == p) {
+            continue;
+        }
+        c_name += prefix_len;
+        int name_len = strlen(c_name);
+        queue_stat_t stat;
+        STRNCPY(stat.name, c_name);
+        stat.name[name_len - suffix_len] = 0;
+        char filename[NAME_MAX] = SHM_LOCATION;
+        STRNCAT(filename, stat.name);
+        if (!is_file_exists(filename)) {
+            continue;
+        }
+        GetStat(stat.name, stat);
+        DumpStat(stat, s, asHtml);
+    }
+    if (asHtml) {
+        s << "    </tbody></table>" << std::endl;
+    }
+}
+
+status_t ShmBufferEx::CheckAllStatus(std::ostream &s, status_format_t format) {
+    status_t status = status_ok;
+    Counters::index_info_t index_info;
+    ValueCounters().GetCategory(COUNTER_PREFIX, index_info);
+    if (index_info.count == 0) {
+        return status;
+    }
+    for (int i = 0; i < index_info.count; i++) {
+        const char *c_name = ValueCounters().Lookup(index_info.index[i].id);
+        const char *p = strstr(c_name, COUNTER_SUFFIX);
+        if (NULL == p) {
+            continue;
+        }
+        c_name += prefix_len;
+        int name_len = strlen(c_name);
+        queue_stat_t stat;
+        STRNCPY(stat.name, c_name);
+        stat.name[name_len - suffix_len] = 0;
+        char filename[NAME_MAX] = SHM_LOCATION;
+        STRNCAT(filename, stat.name);
+        if (!is_file_exists(filename)) {
+            continue;
+        }
+        GetStat(stat.name, stat);
+        status = std::max(status, CheckStatus(stat, s, format));
+    }
+    return status;
+}
+
+
+void ShmBufferEx::DumpStat(const queue_stat_t &stat, std::ostream &s, bool asHtml) {
+    if (asHtml) {
+        s << "    <tr><td>";
+    } else {
+        s << '|' << std::setw(20);
+    }
+    s << stat.name;
+    if (asHtml) {
+        s << "</td>" << std::endl << "      <td>";
+    } else {
+        s << '|';
+    }
+    DumpNumber(s, stat.count, 6);
+    if (asHtml) {
+        s << "</td>" << std::endl << "      <td>";
+    } else {
+        s << '|';
+    }
+    DumpNumber(s, stat.capacity, 6);
+    if (asHtml) {
+        s << "</td>" << std::endl << "      <td>";
+    } else {
+        s << '|';
+    }
+
+    int full = (stat.data_size * 10000 / stat.capacity);
     s << std::setw(3) << full / 100 << '.' << std::setw(2) << std::setfill('0')
       << full % 100 << '%' << std::setfill(' ');
 
-    bool drop_is_ok = GetData()->drop_is_ok;
-    s << '|';
-    DumpNumber(s, cMsgHistory.GetLastCount(), 6);
-    s << '|';
-    DumpNumber(s, cMsgHistory.GetLastVolume(), 6);
-    s << '|';
-    DumpNumber(s, (cPushFailedHistory.GetLastCount() + drop_is_ok ? 0 : cDropHistory.GetLastCount()), 6);
+    if (asHtml) {
+        s << "</td>" << std::endl << "      <td>";
+    } else {
+        s << '|';
+    }
+    DumpNumber(s, stat.message_history.last_count, 6);
+    if (asHtml) {
+        s << "</td>" << std::endl << "      <td>";
+    } else {
+        s << '|';
+    }
+    DumpNumber(s, stat.message_history.last_summ, 6);
+    if (asHtml) {
+        s << "</td>" << std::endl << "      <td>";
+    } else {
+        s << '|';
+    }
+    DumpNumber(s, stat.error_history.last_count, 6);
 
-    s << '|';
-    DumpNumber(s, cMsgHistory.GetIntervalCount() / HistoryCounterData::HistorySize, 6);
-    s << '|';
-    DumpNumber(s, cMsgHistory.GetIntervalVolume() / HistoryCounterData::HistorySize, 6);
-    s << '|';
-    DumpNumber(s, (cPushFailedHistory.GetIntervalCount() + drop_is_ok ? 0 : cDropHistory.GetIntervalCount()) /
-                  HistoryCounterData::HistorySize,
-               6);
-
-    s << '|';
-    DumpNumber(s, cMsgHistory.GetTotalCount(), 6);
-    s << '|';
-    DumpNumber(s, cMsgHistory.GetTotalVolume(), 6);
-    s << '|';
-    DumpNumber(s, cPushFailedHistory.GetTotalCount() + drop_is_ok ? 0 : cDropHistory.GetTotalCount(), 6);
-    s << '|';
+    if (asHtml) {
+        s << "</td>" << std::endl << "      <td>";
+    } else {
+        s << '|';
+    }
+    DumpNumber(s, stat.message_history.interval_count, 6);
+    if (asHtml) {
+        s << "</td>" << std::endl << "      <td>";
+    } else {
+        s << '|';
+    }
+    DumpNumber(s, stat.message_history.interval_summ, 6);
+    if (asHtml) {
+        s << "</td>" << std::endl << "      <td>";
+    } else {
+        s << '|';
+    }
+    DumpNumber(s, stat.error_history.interval_count, 6);
+    if (asHtml) {
+        s << "</td>" << std::endl << "      <td>";
+    } else {
+        s << '|';
+    }
+    DumpNumber(s, stat.message_history.total_count, 6);
+    if (asHtml) {
+        s << "</td>" << std::endl << "      <td>";
+    } else {
+        s << '|';
+    }
+    DumpNumber(s, stat.message_history.total_summ, 6);
+    if (asHtml) {
+        s << "</td>" << std::endl << "      <td>";
+    } else {
+        s << '|';
+    }
+    DumpNumber(s, stat.error_history.total_count, 6);
+    if (asHtml) {
+        s << "</td>" << std::endl << "    </tr>";
+    } else {
+        s << '|';
+    }
     s << std::endl;
+}
+
+void ShmBufferEx::GetStat(queue_stat_t &stat) {
+    UpdateCounters();
+    STRNCPY(stat.name, name.c_str());
+    stat.count = Count();
+    stat.data_size = DataSize();
+    stat.capacity = Capacity();
+    cMsgHistory.GetInfo(stat.message_history);
+    cDropHistory.GetInfo(stat.drop_history);
+    cErrorHistory.GetInfo(stat.error_history);
+}
+
+void ShmBufferEx::GetStat(const char *name, queue_stat_t &stat) {
+    char cName[NAME_MAX];
+    snprintf(cName, sizeof(cName), CNAME_MESSAGE, name);
+    GetHistoryCounters().GetCounterInfo(cName, stat.message_history);
+    snprintf(cName, sizeof(cName), CNAME_DROP, name);
+    GetHistoryCounters().GetCounterInfo(cName, stat.drop_history);
+    snprintf(cName, sizeof(cName), CNAME_ERROR, name);
+    GetHistoryCounters().GetCounterInfo(cName, stat.error_history);
+    snprintf(cName, sizeof(cName), CNAME_COUNT, name);
+    stat.count = ValueCounters().GetCounterValue(cName);
+    snprintf(cName, sizeof(cName), CNAME_USED, name);
+    stat.data_size = ValueCounters().GetCounterValue(cName);
+    snprintf(cName, sizeof(cName), CNAME_CAPACITY, name);
+    stat.capacity = ValueCounters().GetCounterValue(cName);
 }
 
 bool ShmBufferExData::write(const uint8_t *d, size_t _size) {
@@ -141,10 +332,12 @@ bool ShmBufferExData::Push(const ShmChunks &chunks) {
             case return_error:
                 return false;
             case drop_new:
-                ++tmp_drop_msg_count;
-                ++total_drop_msg_count;
-                tmp_msg_volume += rec_size;
-                total_drop_msg_volume += rec_size;
+                ++tmp_drop_count;
+                ++total_drop_count;
+                if (!drop_is_ok) {
+                    ++total_error_count;
+                }
+                tmp_drop_volume += rec_size;
                 return true;
             case drop_old:
                 if (!dropFirstRecords(rec_size)) {
@@ -160,14 +353,13 @@ bool ShmBufferExData::Push(const ShmChunks &chunks) {
     chunks.WriteTo(r->Data());
     commit(rec_size);
     ++count;
-    ++total_msg_count;
-    ++tmp_msg_count;
-    total_msg_volume += rec_size;
-    tmp_msg_volume += rec_size;
+    ++total_count;
+    ++tmp_count;
+    tmp_volume += rec_size;
     return true;
 }
 
-bool ShmBufferExData::GetFirst(uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size, bool delete_record) {
+bool ShmBufferExData::Pop(uint8_t *data, shm_record_size_t max_size, shm_record_size_t &size, bool delete_record) {
     size = 0;
     if (0 == count) {
         return false;
@@ -276,3 +468,4 @@ bool ShmBufferExData::Get(int reader_index, uint8_t *data, shm_record_size_t max
     r.pos = GetNextVptr(r.pos);
     return true;
 }
+
