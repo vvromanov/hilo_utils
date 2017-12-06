@@ -95,6 +95,8 @@ add_library(${TARGET} STATIC
         src/ShmSimple.h
         src/ShmBuffer.cpp
         src/ShmBuffer.h
+        src/ShmBufferExData.cpp
+        src/ShmBufferExData.h
         src/ShmBufferEx.cpp
         src/ShmBufferEx.h
         src/ShmBufferRecord.h
