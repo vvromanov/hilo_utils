@@ -7,9 +7,6 @@
 #include <sys/stat.h>
 #include "common_utils.h"
 
-//#define SHM_READ_LOCK AutoMutexLock lock(GetMutex(), __PRETTY_FUNCTION__);
-//#define SHM_WRITE_LOCK AutoMutexLock lock(GetMutex(), __PRETTY_FUNCTION__);
-
 template<typename T>
 class ShmSimple : public ShmBase {
 public:
@@ -24,8 +21,8 @@ public:
         return res;
     }
 
-    bool Open(const char *name, ssize_t size) {
-        if (size < 0) {
+    bool Open(const char *name, size_t size) {
+        if (0 == size) {
             char fname[NAME_MAX] = SHM_LOCATION;
             STRNCAT(fname, name);
             struct stat stat_buf;
@@ -48,8 +45,8 @@ public:
         return true;
     }
 
-    bool OpenMirror(const char *name, ssize_t size, size_t header_size) {
-        if (size <= 0) {
+    bool OpenMirror(const char *name, size_t size, size_t header_size) {
+        if (0 == size) {
             char fname[NAME_MAX] = SHM_LOCATION;
             STRNCAT(fname, name);
             struct stat stat_buf;

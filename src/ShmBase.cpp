@@ -3,12 +3,14 @@
 #include "ShmBase.h"
 #include "log.h"
 #include "common_utils.h"
+#include "file_utils.h"
 #include <sys/mman.h>
 #include <fcntl.h>           /* For O_* constants */
 #include <sys/stat.h>
 #include <inttypes.h>
 #include <cerrno>
 #include <stdio.h>
+#include <climits>
 
 int32_t ShmBase::prev_instance;
 
@@ -93,12 +95,9 @@ bool ShmBase::Open(const char *name, size_t _size, bool resize) {
     }
     map_size = size;
 #ifndef NO_MLOCK
-    if (mlock(shm_data_ptr, size) != 0) {
-        log_write(LOG_LEVEL_ERR_ERRNO, "mlock(%s) failed. size=%zu", name, size);
-//        fprintf(stderr, "mlock(%s) failed. size=%zu. E%d - %s\n", name, size, errno, strerror(errno));
-        Close();
-        return false;
-    }
+        if (mlock(shm_data_ptr, size) != 0) {
+            log_write(LOG_LEVEL_WARNING_ERRNO, "mlock(%s) failed. size=%zu", name, size);
+        }
 #endif
     return true;
 }
@@ -141,12 +140,9 @@ bool ShmBase::OpenMirror(const char *name, size_t _size, size_t header_size, boo
         return false;
     }
 #ifndef NO_MLOCK
-    if (mlock(shm_data_ptr, size) != 0) {
-        log_write(LOG_LEVEL_ERR_ERRNO, "mlock(%s) failed. size=%zu", name, size);
-//        fprintf(stderr, "mlock(%s) failed. size=%zu. E%d - %s\n", name, size, errno, strerror(errno));
-        Close();
-        return false;
-    }
+        if (mlock(shm_data_ptr, size) != 0) {
+            log_write(LOG_LEVEL_WARNING_ERRNO, "mlock(%s) failed. size=%zu", name, size);
+        }
 #endif
     return true;
 }
@@ -221,3 +217,14 @@ std::string ShmBase::GetFileName() const {
     r += name;
     return r;
 }
+
+bool ShmFileExists(const char *shm_name, const char *suffix) {
+    char name[NAME_MAX + 1];
+    STRNCPY(name, SHM_LOCATION);
+    STRNCAT(name, shm_name);
+    if (suffix) {
+        STRNCAT(name, suffix);
+    }
+    return is_file_exists(name);
+}
+

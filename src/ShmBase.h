@@ -48,6 +48,7 @@ public:
 
     uint8_t *GetData() const { return shm_data_ptr; };
     bool IsDeleted() const;
+
     bool IsOpened() const { return shm_data_ptr != NULL; };
     std::string GetFileName() const;
 
@@ -59,7 +60,7 @@ public:
         return instance;
     }
 
-    const std::string& GetName() const {
+    const std::string &GetName() const {
         return name;
     }
 
@@ -70,3 +71,5 @@ protected:
     void header_init_done(shm_header_t &h);
     bool openShm(const char *name, size_t size, bool resize);
 };
+
+bool ShmFileExists(const char *shm_name, const char *suffix = NULL);
