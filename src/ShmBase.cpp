@@ -94,10 +94,7 @@ bool ShmBase::Open(const char *name, size_t _size, bool resize) {
     map_size = size;
 #ifndef NO_MLOCK
     if (mlock(shm_data_ptr, size) != 0) {
-        log_write(LOG_LEVEL_ERR_ERRNO, "mlock(%s) failed. size=%zu", name, size);
-//        fprintf(stderr, "mlock(%s) failed. size=%zu. E%d - %s\n", name, size, errno, strerror(errno));
-        Close();
-        return false;
+        log_write(LOG_LEVEL_WARNING_ERRNO, "mlock(%s) failed. size=%zu", name, size);
     }
 #endif
     return true;
@@ -142,9 +139,7 @@ bool ShmBase::OpenMirror(const char *name, size_t _size, size_t header_size, boo
     }
 #ifndef NO_MLOCK
     if (mlock(shm_data_ptr, size) != 0) {
-        log_write(LOG_LEVEL_ERR_ERRNO, "mlock(%s) failed. size=%zu", name, size);
-//        fprintf(stderr, "mlock(%s) failed. size=%zu. E%d - %s\n", name, size, errno, strerror(errno));
-        Close();
+        log_write(LOG_LEVEL_WARNING_ERRNO, "mlock(%s) failed. size=%zu", name, size);
         return false;
     }
 #endif
@@ -155,7 +150,7 @@ void ShmBase::Close() {
     if (shm_data_ptr && shm_data_ptr != MAP_FAILED) {
 #ifndef __CYGWIN__
         if (munlock(shm_data_ptr, map_size) != 0) {
-            log_write(LOG_LEVEL_ERR_ERRNO, "munlock(%s) failed", name.c_str());
+            log_write(LOG_LEVEL_WARNING_ERRNO, "munlock(%s) failed", name.c_str());
         }
 #endif
         munmap(shm_data_ptr, map_size);
