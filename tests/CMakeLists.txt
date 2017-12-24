@@ -3,12 +3,6 @@ project(${TARGET})
 
 find_package(ZLIB REQUIRED)
 
-include_directories(
-        ${TEST_INCS_ALL}
-        ${UTILS_INCS_ALL}
-        ${T1HA_INCS_ALL}
-)
-
 add_executable(${TARGET}
         Convert.cpp
         Log_test.cpp

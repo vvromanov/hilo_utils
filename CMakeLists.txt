@@ -68,12 +68,6 @@ else ()
     add_definitions(-DTX_VERSION_VARIANT="${CMAKE_BUILD_TYPE}")
 endif ()
 
-set(HILO_INCS_ALL ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE INTERNAL "HILO_INCS_ALL")
-
-include_directories(
-        ${HILO_INCS_ALL}
-)
-
 add_library(${TARGET} STATIC
         src/version.h
         src/ansi_escape_codes.h
@@ -144,6 +138,10 @@ add_library(${TARGET} STATIC
 target_link_libraries(${TARGET}
         pthread
         rt
+        )
+
+target_include_directories(${TARGET} PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
         )
 
 add_subdirectory(rrd-writer)

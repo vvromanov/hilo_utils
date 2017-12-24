@@ -17,10 +17,8 @@ endif ()
 
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${HILO_INCS_ALL}
         ${LIBEV_INCLUDE_DIR}
         ${SYSD_INC}
-        ${FILE_WRITER_INCS_ALL}
 )
 
 add_executable(${TARGET}

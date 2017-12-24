@@ -4,15 +4,6 @@ project(${TARGET})
 
 set_source_files_properties(gtest-all.cc PROPERTIES COMPILE_FLAGS "-Wno-missing-declarations")
 
-set(TEST_INCS_ALL
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/gtest
-        CACHE INTERNAL "TEST_INCS_ALL")
-
-include_directories(
-        ${TEST_INCS_ALL}
-)
-
 add_library(${TARGET} STATIC
         test_main.cpp
         BenchTime.cpp
@@ -20,6 +11,11 @@ add_library(${TARGET} STATIC
         ShmFileBase.h
         TestBase.h
         gtest-all.cc)
+
+target_include_directories(${TARGET} PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/gtest
+        )
 
 target_link_libraries(${TARGET}
         hilo_utils
