@@ -106,16 +106,15 @@ public:
         ptr = &def_value;
     }
 
+    bool IsInit() {
+        return ptr != &def_value;
+    }
+
     operator int64_t() {
         Init();
         return *ptr;
     }
 
-//    operator bool() {
-//        Init();
-//        return *ptr != 0;
-//    }
-//
     int64_t Get() {
         Init();
         return *ptr;
