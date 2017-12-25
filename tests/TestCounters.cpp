@@ -36,3 +36,10 @@ TEST_F(TestCounters, FullFill) {
     Counter counter(name.c_str());
     ASSERT_FALSE(counter.IsValid());
 }
+
+TEST_F(TestCounters, LazyIsInit) {
+    LazyCounter counter("test.c");
+    ASSERT_FALSE(counter.IsInit());
+    counter=2;
+    ASSERT_TRUE(counter.IsInit());
+}
