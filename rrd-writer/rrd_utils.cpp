@@ -11,7 +11,7 @@ extern "C" {
 }
 #endif
 
-#include <log.h>
+#include "LogBase.h"
 #include <SysInfoCpu.h>
 #include <file_utils.h>
 #include <SysInfoMemory.h>

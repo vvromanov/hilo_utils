@@ -1,7 +1,7 @@
 #define __STDC_FORMAT_MACROS
 
 #include "ShmBase.h"
-#include "log.h"
+#include "LogBase.h"
 #include "common_utils.h"
 #include "file_utils.h"
 #include <sys/mman.h>

@@ -2,7 +2,7 @@
 
 #include "ShmBase.h"
 #include "auto_mutex.h"
-#include "log.h"
+#include "LogBase.h"
 #include <climits>
 #include <sys/stat.h>
 #include "common_utils.h"

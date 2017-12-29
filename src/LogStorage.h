@@ -4,7 +4,7 @@
 #include <signal.h>
 #include <cstdint>
 #include <cstdarg>
-#include "log.h"
+#include "LogBase.h"
 #include "ShmBufferEx.h"
 #include "counters.h"
 

@@ -3,7 +3,6 @@
 #include <gtest/gtest.h>
 #include <ShmBase.h>
 #include <file_utils.h>
-#include <log.h>
 #include "TestBase.h"
 
 template<typename T>

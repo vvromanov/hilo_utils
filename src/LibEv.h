@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ev.h"
-#include "log.h"
+#include "LogBase.h"
 
 #define EV_TIMER_PARAMS  __attribute__ ((unused)) EV_P_ __attribute__ ((unused)) ev_timer  *w, __attribute__ ((unused)) int revents
 #define EV_IDLE_PARAMS  __attribute__ ((unused)) EV_P_ __attribute__ ((unused)) ev_idle  *w, __attribute__ ((unused)) int revents

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <log.h>
+#include "LogBase.h"
 #include <Uptime.h>
 
 static const char *processes[] = {"test", "test2", "test3", "not_active"};

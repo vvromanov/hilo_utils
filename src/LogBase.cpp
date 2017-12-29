@@ -1,6 +1,6 @@
 #include <strings.h>
 #include <cerrno>
-#include "log.h"
+#include "LogBase.h"
 #include "common_utils.h"
 #include "LogStorage.h"
 #include "ansi_escape_codes.h"

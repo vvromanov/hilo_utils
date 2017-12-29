@@ -1,5 +1,5 @@
 #include "LogOptions.h"
-#include "log.h"
+#include "LogBase.h"
 #include "common_utils.h"
 
 error_t log_option_parse(int key, char *arg, struct argp_state *state, bool &handled) {

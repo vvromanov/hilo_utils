@@ -1,4 +1,4 @@
-#include <log.h>
+#include <LogBase.h>
 #include <counters.h>
 #include <file_utils.h>
 #include <HistoryCounters.h>

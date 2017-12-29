@@ -1,5 +1,5 @@
 #include <cstdio>
-#include <log.h>
+#include <LogBase.h>
 #include <string.h>
 #include <common_utils.h>
 #include <sys/sysinfo.h>

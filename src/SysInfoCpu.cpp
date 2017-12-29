@@ -4,7 +4,7 @@
 #include <cinttypes>
 #include <unistd.h>
 #include "SysInfoCpu.h"
-#include "log.h"
+#include "LogBase.h"
 #include "counters_base.h"
 
 

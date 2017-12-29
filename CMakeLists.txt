@@ -111,8 +111,8 @@ add_library(${TARGET} STATIC
         src/HistoryCounterLocal.h
 
         #log
-        src/log.cpp
-        src/log.h
+        src/LogBase.cpp
+        src/LogBase.h
         src/LogStorage.cpp
         src/LogStorage.h
         src/LogMonitorEv.h

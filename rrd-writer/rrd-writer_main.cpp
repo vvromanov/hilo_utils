@@ -1,5 +1,5 @@
 #include <argp.h>
-#include <log.h>
+#include "LogBase.h"
 #include <cstdlib>
 #include <SignalWatcher.h>
 #include <LibEv.h>

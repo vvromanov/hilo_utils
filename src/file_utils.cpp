@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fcntl.h>
 #include <climits>
-#include "log.h"
+#include "LogBase.h"
 #include "file_utils.h"
 #include "common_utils.h"
 

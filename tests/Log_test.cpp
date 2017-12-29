@@ -1,6 +1,6 @@
 #include <ShmFileBase.h>
 #include <ansi_escape_codes.h>
-#include "log.h"
+#include "LogBase.h"
 #include "gtest/gtest.h"
 #include "LogStorage.h"
 

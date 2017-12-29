@@ -2,7 +2,7 @@
 #include "ShmBase.h"
 #include "gtest/gtest.h"
 #include "file_utils.h"
-#include "log.h"
+#include "LogBase.h"
 
 #define TEST_SHM_SIZE 4000U
 

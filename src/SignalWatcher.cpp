@@ -1,7 +1,7 @@
 #include <zconf.h>
 #include <execinfo.h>
 #include "SignalWatcher.h"
-#include "log.h"
+#include "LogBase.h"
 
 on_signal_t *on_sighup = nullptr;
 on_signal_t *on_sigusr1 = nullptr;
