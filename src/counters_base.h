@@ -62,11 +62,11 @@ public:
     }
 
     int64_t operator+=(int64_t v) {
-        return (*ptr)+=v;
+        return (*ptr) += v;
     }
 
     int64_t operator-=(int64_t v) {
-        return (*ptr)-=v;
+        return (*ptr) -= v;
     }
 
     static int64_t GetValue(const char *name, counter_type_t type = counter_incremental) {
@@ -86,6 +86,7 @@ class LazyCounter {
     counter_type_t type = counter_incremental;
     std::string name;
     LazyCounter(const Counter &c);
+    int instance;
 public:
     LazyCounter() {};
 
@@ -140,21 +141,22 @@ public:
 
     int64_t operator+=(int64_t v) {
         Init();
-        return (*ptr)+=v;
+        return (*ptr) += v;
     }
 
     int64_t operator-=(int64_t v) {
         Init();
-        return (*ptr)-=v;
+        return (*ptr) -= v;
     }
 
 protected:
     void Init() {
-        if (ptr == &def_value) {
-            Counters &c = (type == counter_value) ? ValueCounters() : IncrementedCounters();
+        Counters &c = (type == counter_value) ? ValueCounters() : IncrementedCounters();
+        if (ptr == &def_value || c.GetInstance() != instance) {
             Counters::index_t index = c.GetCounterIndex(name.c_str());
             if (index != DICTIONARY_INVALID_INDEX) {
                 ptr = c.GetCounterPtr(index);
+                instance = c.GetInstance();
             }
         }
     }
