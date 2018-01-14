@@ -29,9 +29,9 @@ extern "C" {
 #define RRA3 "RRA:AVERAGE:0.95:60:129600" //90d
 #define RRA4 "RRA:AVERAGE:0.95:600:108000" //750d
 
-static bool rrd_check_status(int status, const char *func) {
+static bool rrd_check_status(int status, const char *func, const char* file, const char* update) {
     if (status != 0) {
-        log_write(LOG_LEVEL_ERR, "%s: status=%d (%s)", func, status, rrd_get_error());
+        log_write(LOG_LEVEL_ERR, "%s: status=%d (%s) file='%s' param='%s'", func, status, rrd_get_error(), file, update);
         rrd_clear_error();
         return false;
     }
@@ -45,7 +45,7 @@ bool rrd_connect() {
 
     rrd_clear_error();
     status = rrdc_connect(RRD_CACHED);
-    if (!rrd_check_status(status, "rrdc_connect")) {
+    if (!rrd_check_status(status, "rrdc_connect", "", RRD_CACHED)) {
         return false;
     }
     log_write(LOG_LEVEL_INFO, "rrdcached client: connected to %s", RRD_CACHED);
@@ -77,12 +77,12 @@ bool rrd_create_file(const char *filename, int count, const char *ds[]) {
     argv[argc++] = RRA4;
 #endif
     int status = rrd_create_r(filename, RRD_STEP, time(NULL) - 10, argc, argv);
-    if (!rrd_check_status(status, "rrdc_create")) {
+    if (!rrd_check_status(status, "rrdc_create", filename,"")) {
         log_write(LOG_LEVEL_ERR, "Can't create %s file", filename);
         return false;
     }
     status = rrdc_flush(filename);
-    if (!rrd_check_status(status, "rrdc_flush")) {
+    if (!rrd_check_status(status, "rrdc_flush", filename,"")) {
         return false;
     }
     log_write(LOG_LEVEL_NOTICE, "File %s created", filename);
@@ -114,7 +114,7 @@ static bool rrd_update(const char *filename, const char *update) {
     const char *argv[1] = {update};
     int status = rrdc_update(filename, 1, argv);
     log_write(LOG_LEVEL_PARN, "update file %s with %s", filename, update);
-    if (!rrd_check_status(status, "rrdc_update")) {
+    if (!rrd_check_status(status, "rrdc_update", filename, update)) {
         return false;
     }
     return true;

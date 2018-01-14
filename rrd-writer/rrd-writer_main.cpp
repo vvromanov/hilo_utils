@@ -24,17 +24,6 @@ static void mainPeriodic(EV_TIMER_PARAMS) {
         rrd_update_cpu();
         rrd_update_memory();
         rrd_update_load();
-        rrd_update_counters("call.", counter_incremental);
-        rrd_update_counters("diameter.", counter_incremental);
-        rrd_update_counters("dns.", counter_incremental);
-        rrd_update_counters("dtf.", counter_incremental);
-        rrd_update_counters("dtf_api.", counter_incremental);
-        rrd_update_counters("log-writer.", counter_incremental);
-        rrd_update_counters("log.", counter_incremental);
-        rrd_update_counters("lua.", counter_incremental);
-        rrd_update_counters("process.", counter_incremental);
-        rrd_update_counters("dtf.connections.", counter_value);
-        rrd_update_counters("shm.", counter_value);
         rrd_update_history_counters(NULL);
         for (int i = 0; i < custom_prefix_count; i++) {
             switch (custom_prefix[i].type) {
