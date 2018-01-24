@@ -24,6 +24,7 @@
 #define IP_PRINTF_ARG_NETWORK(addr) (int)((addr) & 0xff), (int)((addr) >> 8 & 0xff), (int)((addr) >> 16 & 0xff), (int)((addr) >> 24)
 
 //ISO 8601
+#define DATE_TIME_FORMAT_UTC "%Y-%m-%dT%H:%M:%SZ"
 #define DATE_TIME_FORMAT1 "%Y-%m-%d %H:%M:%S"
 #define DATE_TIME_FORMAT2 "%y/%m/%d %H:%M:%S"
 
