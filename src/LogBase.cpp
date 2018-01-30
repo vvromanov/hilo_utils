@@ -169,6 +169,9 @@ static int syslog_level(log_level_t l) {
 }
 
 void log_write_str(log_level_t level, const char *string, int len) {
+    if (!is_log_enabled(level)) {
+        return;
+    }
     if (len < 0) {
         len = strlen(string);
     }
