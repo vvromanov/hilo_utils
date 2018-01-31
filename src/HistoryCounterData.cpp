@@ -4,12 +4,7 @@
 #include "DumpUtils.h"
 
 void HistoryCounterData::Init(HistoryCounterType_t t) {
-    pthread_mutexattr_t a;
-    pthread_mutexattr_init(&a);
-    pthread_mutexattr_setpshared(&a, PTHREAD_PROCESS_SHARED);
-    pthread_mutexattr_settype(&a, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&mutex, &a);
-    pthread_mutexattr_destroy(&a);
+    simple_mutex_init(mutex);
     Clear();
     SetType(t);
 }

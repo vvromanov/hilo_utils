@@ -89,7 +89,7 @@ public:
         }
     }
 
-    pthread_mutex_t *GetMutex() { return &(GetData()->header.mutex); }
+    simple_mutex_t& GetMutex() { return (GetData()->header.mutex); }
 
 protected:
     T *GetData() const { return ((T *) (shm_data_ptr)); };

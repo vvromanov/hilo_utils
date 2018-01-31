@@ -203,13 +203,7 @@ void ShmBase::header_init_done(ShmBase::shm_header_t &h) {
 
 void ShmBase::header_init(ShmBase::shm_header_t &h) {
     h.signature = SHM_SIGNATURE;
-    pthread_mutexattr_t a;
-    pthread_mutexattr_init(&a);
-    pthread_mutexattr_setpshared(&a, PTHREAD_PROCESS_SHARED);
-    //pthread_mutexattr_settype(&a, PTHREAD_MUTEX_ADAPTIVE_NP);
-    pthread_mutexattr_settype(&a, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&h.mutex, &a);
-    pthread_mutexattr_destroy(&a);
+    simple_mutex_init(h.mutex);
 }
 
 std::string ShmBase::GetFileName() const {

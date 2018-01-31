@@ -133,7 +133,7 @@ add_library(${TARGET} STATIC
         src/Rusage.cpp
         src/SignalWatcher.cpp
         src/SignalWatcher.h
-        )
+        src/mutex.cpp src/mutex.h)
 
 target_link_libraries(${TARGET}
         pthread

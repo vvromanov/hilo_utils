@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <string>
+#include "mutex.h"
 
 #define SHM_LOCATION "/dev/shm/"
 
@@ -30,7 +31,7 @@ public:
     typedef struct {
         volatile int64_t signature;
         volatile int32_t init_state;
-        pthread_mutex_t mutex;
+        simple_mutex_t mutex;
     } __attribute__((__packed__)) shm_header_t;
 
     ShmBase();

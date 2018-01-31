@@ -132,7 +132,7 @@ public:
     void DumpHtml(std::ostream &s);
 
 protected:
-    pthread_mutex_t mutex;
+    simple_mutex_t mutex;
     HistoryRec recs[HistorySize + 1];
     volatile int64_t current_rec;
     counter_t total_count;
@@ -143,7 +143,7 @@ protected:
     int64_t started_ms;
     HistoryCounterType_t type;
 
-    pthread_mutex_t *GetMutex() { return &mutex; }
+    inline simple_mutex_t& GetMutex() { return mutex; }
 
     void update();
 } __attribute__((__packed__));
