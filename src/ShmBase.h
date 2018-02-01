@@ -20,7 +20,7 @@ protected:
     int fd = -1;
     ino_t inode = 0;
     int32_t instance = 0;
-    char name[NAME_MAX] = "";
+    char name[NAME_MAX] = {0};
     static int32_t prev_instance;
 public:
     typedef enum {
