@@ -13,6 +13,7 @@
 #include <climits>
 
 int32_t ShmBase::prev_instance;
+bool ShmBase::ignore_mlock_error;
 
 ShmBase::ShmBase() {
     clear();
@@ -96,7 +97,9 @@ bool ShmBase::Open(const char *name, size_t _size, bool resize) {
     map_size = size;
 #ifndef NO_MLOCK
     if (mlock(shm_data_ptr, size) != 0) {
-        log_write(LOG_LEVEL_WARNING_ERRNO, "mlock(%s) failed. size=%zu", name, size);
+        if (!ignore_mlock_error) {
+            log_write(LOG_LEVEL_WARNING_ERRNO, "mlock(%s) failed. size=%zu", name, size);
+        }
     }
 #endif
     return true;
@@ -141,7 +144,9 @@ bool ShmBase::OpenMirror(const char *name, size_t _size, size_t header_size, boo
     }
 #ifndef NO_MLOCK
     if (mlock(shm_data_ptr, size) != 0) {
-        log_write(LOG_LEVEL_WARNING_ERRNO, "mlock(%s) failed. size=%zu", name, size);
+        if (!ignore_mlock_error) {
+            log_write(LOG_LEVEL_WARNING_ERRNO, "mlock(%s) failed. size=%zu", name, size);
+        }
     }
 #endif
     return true;

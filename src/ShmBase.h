@@ -23,6 +23,7 @@ protected:
     char name[NAME_MAX] = {0};
     static int32_t prev_instance;
 public:
+    static bool ignore_mlock_error;
     typedef enum {
         clean,
         intilializing,
