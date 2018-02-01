@@ -24,7 +24,7 @@ typedef struct {
     char message[];
 } __attribute__((__packed__)) log_record_t;
 
-Counters &LogCounters();
+Counters& LogCounters();
 ShmBufferEx &LogStorage();
 
 bool log_write_record(log_level_t level, const char *message, int len);

@@ -4,32 +4,35 @@
 
 log_source_t log_source = -1;
 
-size_t opt_log_storage_size = std::min(GetMemoryPart(5), (size_t)500 * 1024 * 1024);
+size_t opt_log_storage_size = std::min(GetMemoryPart(5), (size_t) 500 * 1024 * 1024);
 
 Counters &LogCounters() {
-    static Counters logCounters;
-    if (!logCounters.IsOpened()) {
+    static Counters *logCounters = NULL;
+    if (NULL == logCounters) {
         if (opt_log_level == LOG_LEVEL_PARN) {
             fprintf(stderr, "Open LogCounters\n");
         }
+        logCounters = new Counters();
         {
             ScopedLogLevel ll(LOG_LEVEL_DISABLED);
-            logCounters.Open(LOG_COUNTERS_SHM_NAME, counters_suffix);
+            logCounters->Open(LOG_COUNTERS_SHM_NAME, counters_suffix);
         }
         if (opt_log_level == LOG_LEVEL_PARN) {
-            if (logCounters.IsOpened()) {
+            if (logCounters->IsOpened()) {
                 fprintf(stderr, "Log counters opened\n");
             } else {
                 fprintf(stderr, "Can't open log counters!!!\n");
+                delete logCounters;
+                logCounters = NULL;
             }
         }
     }
-    return logCounters;
+    return *logCounters;
 }
 
 ShmBufferEx &LogStorage() {
-    static ShmBufferEx logStorage;
-    if (!logStorage.IsOpened()) {
+    static ShmBufferEx *logStorage = NULL;
+    if (NULL == logStorage) {
         char name[NAME_MAX];
         STRNCPY(name, LOG_STORAGE_SHM_NAME);
         if (counters_suffix) {
@@ -38,27 +41,26 @@ ShmBufferEx &LogStorage() {
         if (opt_log_level == LOG_LEVEL_PARN) {
             fprintf(stderr, "Open log storage %s size=%lu\n", name, opt_log_storage_size);
         }
+        logStorage = new ShmBufferEx();
         {
             ScopedLogLevel ll(LOG_LEVEL_DISABLED);
-            logStorage.Open(name, opt_log_storage_size);
+            logStorage->Open(name, opt_log_storage_size);
         }
-        if (!logStorage.IsOpened()) {
+        if (!logStorage->IsOpened()) {
             fprintf(stderr, "Can`t open log storage %s size=%lu [E%d] %s\n", name, opt_log_storage_size, errno,
                     strerror(errno));
+            delete logStorage;
+            logStorage = NULL;
         } else {
             if (opt_log_level == LOG_LEVEL_PARN) {
                 fprintf(stderr, "Log storage opened\n");
             }
-            logStorage.SetOverflovBehavior(drop_old, true);
+            logStorage->SetOverflovBehavior(drop_old, true);
         }
     }
-    return logStorage;
+    return *logStorage;
 }
 
-
-static void update_log_source() {
-    log_source = LogCounters().Add(log_get_worker_name());
-}
 
 bool log_write_record(log_level_t level, const char *message, int len) {
     static bool in_log_write = false;
@@ -73,7 +75,7 @@ bool log_write_record(log_level_t level, const char *message, int len) {
         if (opt_log_level == LOG_LEVEL_PARN) {
             fprintf(stderr, "log_write_record - update_log_source\n");
         }
-        update_log_source();
+        log_source = LogCounters().Add(log_get_worker_name());
     }
 //    fprintf(stderr, "log_write_record - construct log_record\n");
     log_record_t hdr;
