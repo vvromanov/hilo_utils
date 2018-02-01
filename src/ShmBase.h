@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string>
 #include "mutex.h"
+#include <limits.h>
 
 #define SHM_LOCATION "/dev/shm/"
 
@@ -13,13 +14,13 @@
 
 class ShmBase {
 protected:
-    uint8_t *shm_data_ptr;
-    size_t size;
-    size_t map_size;
-    int fd;
-    ino_t inode;
-    int32_t instance;
-    std::string name;
+    uint8_t *shm_data_ptr = NULL;
+    size_t size = 0;
+    size_t map_size = 0;
+    int fd = -1;
+    ino_t inode = 0;
+    int32_t instance = 0;
+    char name[NAME_MAX] = "";
     static int32_t prev_instance;
 public:
     typedef enum {
@@ -61,7 +62,7 @@ public:
         return instance;
     }
 
-    const std::string &GetName() const {
+    const char *GetName() const {
         return name;
     }
 

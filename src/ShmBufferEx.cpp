@@ -255,7 +255,7 @@ void ShmBufferEx::DumpStat(const queue_stat_t &stat, std::ostream &s, bool asHtm
 
 void ShmBufferEx::GetStat(queue_stat_t &stat) {
     UpdateCounters();
-    STRNCPY(stat.name, name.c_str());
+    STRNCPY(stat.name, name);
     stat.count = Count();
     stat.data_size = DataSize();
     stat.capacity = Capacity();

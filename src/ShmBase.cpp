@@ -19,15 +19,15 @@ ShmBase::ShmBase() {
 }
 
 
-bool ShmBase::openShm(const char *name, size_t _size, bool resize) {
+bool ShmBase::openShm(const char *_name, size_t _size, bool resize) {
     struct stat file_stat;
 
     if (fd > 0) {
-        log_write(LOG_LEVEL_CRIT, "Shm [%s] already opened", name);
+        log_write(LOG_LEVEL_CRIT, "Shm [%s] already opened", _name);
         return false;
     }
     clear();
-    this->name = name;
+    STRNCPY(this->name, _name);
     fd = -1;
     if (_size == 0) {
         fd = shm_open(name, O_RDWR, (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH));
@@ -95,9 +95,9 @@ bool ShmBase::Open(const char *name, size_t _size, bool resize) {
     }
     map_size = size;
 #ifndef NO_MLOCK
-        if (mlock(shm_data_ptr, size) != 0) {
-            log_write(LOG_LEVEL_WARNING_ERRNO, "mlock(%s) failed. size=%zu", name, size);
-        }
+    if (mlock(shm_data_ptr, size) != 0) {
+        log_write(LOG_LEVEL_WARNING_ERRNO, "mlock(%s) failed. size=%zu", name, size);
+    }
 #endif
     return true;
 }
@@ -140,9 +140,9 @@ bool ShmBase::OpenMirror(const char *name, size_t _size, size_t header_size, boo
         return false;
     }
 #ifndef NO_MLOCK
-        if (mlock(shm_data_ptr, size) != 0) {
-            log_write(LOG_LEVEL_WARNING_ERRNO, "mlock(%s) failed. size=%zu", name, size);
-        }
+    if (mlock(shm_data_ptr, size) != 0) {
+        log_write(LOG_LEVEL_WARNING_ERRNO, "mlock(%s) failed. size=%zu", name, size);
+    }
 #endif
     return true;
 }
@@ -151,7 +151,7 @@ void ShmBase::Close() {
     if (shm_data_ptr && shm_data_ptr != MAP_FAILED) {
 #ifndef __CYGWIN__
         if (munlock(shm_data_ptr, map_size) != 0) {
-            log_write(LOG_LEVEL_ERR_ERRNO, "munlock(%s) failed", name.c_str());
+            log_write(LOG_LEVEL_ERR_ERRNO, "munlock(%s) failed", name);
         }
 #endif
         munmap(shm_data_ptr, map_size);
@@ -167,7 +167,7 @@ void ShmBase::clear() {
     fd = 0;
     instance = 0;
     inode = 0;
-    name.clear();
+    name[0] = 0;
 }
 
 bool ShmBase::IsDeleted() const {
@@ -196,7 +196,7 @@ bool ShmBase::is_init_needed(ShmBase::shm_header_t &h) {
 
 void ShmBase::header_init_done(ShmBase::shm_header_t &h) {
     if (!__sync_bool_compare_and_swap(&h.init_state, ShmBase::intilializing, ShmBase::intilialized)) {
-        fprintf(stderr, "Init state flag in invalid status [%s]!!", name.c_str());
+        fprintf(stderr, "Init state flag in invalid status [%s]!!", name);
         exit(EXIT_FAILURE);
     }
 }
