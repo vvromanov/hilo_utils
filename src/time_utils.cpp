@@ -1,6 +1,7 @@
 #include "time_utils.h"
 #include <sys/time.h>
 #include <time.h>
+#include <iomanip>
 
 
 //static __inline__ uint64_t rdtsc(void)
@@ -57,11 +58,23 @@ time_t ts2time(const timestamp_t &t) {
 void time2ts(time_t t, timestamp_t &ts) {
     struct tm tm;
     gmtime_r(&t, &tm);
-    ts.fraction=0;
-    ts.second=tm.tm_sec;
-    ts.minute=tm.tm_min;
-    ts.hour=tm.tm_hour;
-    ts.day=tm.tm_mday;
-    ts.month=tm.tm_mon+1;
-    ts.year=tm.tm_year+1900;
+    ts.fraction = 0;
+    ts.second = tm.tm_sec;
+    ts.minute = tm.tm_min;
+    ts.hour = tm.tm_hour;
+    ts.day = tm.tm_mday;
+    ts.month = tm.tm_mon + 1;
+    ts.year = tm.tm_year + 1900;
+}
+
+void us2ts(int64_t us, timestamp_t &ts) {
+    time2ts(us / 1000000, ts);
+    ts.fraction = (us % 1000000) * 1000;
+}
+
+void DumpTs(std::ostream &os, const timestamp_t &ts) {
+    char tmp[100];
+    snprintf(tmp, sizeof(tmp), "%d/%02d/%02d %02d:%02d:%02d.%03d", ts.year, ts.month, ts.day, ts.hour, ts.minute,
+             ts.second, ts.fraction / 1000000);
+    os<<tmp;
 }

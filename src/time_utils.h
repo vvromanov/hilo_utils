@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <ctime>
 #include <sys/time.h>
+#include <ostream>
 
 static inline int64_t getTimeMs(struct timeval val) {
     return val.tv_sec * ((int64_t) 1000) + val.tv_usec / 1000;
@@ -60,3 +61,5 @@ static inline int64_t ts2us(const timestamp_t &ts) {
 }
 
 void time2ts(time_t t, timestamp_t &ts);
+void us2ts(int64_t us, timestamp_t &ts);
+void DumpTs(std::ostream& os, const timestamp_t &ts);
