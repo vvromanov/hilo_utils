@@ -10,7 +10,8 @@ add_library(${TARGET} STATIC
         BenchTime.h
         ShmFileBase.h
         TestBase.h
-        gtest-all.cc)
+        gtest/gtest-all.cc
+        )
 
 target_include_directories(${TARGET} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
