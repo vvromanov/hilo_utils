@@ -198,9 +198,9 @@ public:
     static void GetStat(const char* name, queue_stat_t& stat);
     static void DumpStat(const queue_stat_t& stat, std::ostream &s, bool asHtml);
     static void DumpStatTable(std::ostream &s, bool asHtml);
-    static status_t CheckAllStatus(std::ostream &s, status_format_t format);
-    status_t CheckStatus(std::ostream &s, status_format_t format);
-    static status_t CheckStatus(const queue_stat_t& stat, std::ostream &s, status_format_t format);
+    static status_t CheckAllStatus(std::ostream &s, status_format_t format, const char* ignore_full_names[], int ignore_full_names_count);
+    status_t CheckStatus(std::ostream &s, status_format_t format, bool ignore_full);
+    static status_t CheckStatus(const queue_stat_t& stat, std::ostream &s, status_format_t format, bool ignore_full);
     void UpdateCounters();
 };
 

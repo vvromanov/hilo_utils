@@ -43,23 +43,25 @@ void ShmBufferEx::UpdateCounters() {
 }
 
 
-status_t ShmBufferEx::CheckStatus(std::ostream &s, status_format_t format) {
+status_t ShmBufferEx::CheckStatus(std::ostream &s, status_format_t format, bool ignore_full) {
     queue_stat_t stat;
     GetStat(stat);
-    return CheckStatus(stat, s, format);
+    return CheckStatus(stat, s, format, ignore_full);
 }
 
-status_t ShmBufferEx::CheckStatus(const queue_stat_t &stat, std::ostream &s, status_format_t format) {
+status_t ShmBufferEx::CheckStatus(const queue_stat_t &stat, std::ostream &s, status_format_t format, bool ignore_full) {
     status_t status = status_ok;
-    int full = stat.data_size * 100 / stat.capacity;
-    if (format == status_nagios || full > 80) {
-        s << "Queue " << stat.name << " " << full << "% full" << std::endl;
-    }
-    if (full > 80) {
-        status = status_warning;
-    }
-    if (full > 90) {
-        status = status_critical;
+    if (!ignore_full) {
+        int full = stat.data_size * 100 / stat.capacity;
+        if (format == status_nagios || full > 80) {
+            s << "Queue " << stat.name << " " << full << "% full" << std::endl;
+        }
+        if (full > 80) {
+            status = status_warning;
+        }
+        if (full > 90) {
+            status = status_critical;
+        }
     }
     if (stat.error_history.interval_count > 0) {
         if (stat.error_history.last_count > 0) {
@@ -131,7 +133,8 @@ void ShmBufferEx::DumpStatTable(std::ostream &s, bool asHtml) {
     }
 }
 
-status_t ShmBufferEx::CheckAllStatus(std::ostream &s, status_format_t format) {
+status_t ShmBufferEx::CheckAllStatus(std::ostream &s, status_format_t format, const char *ignore_full_names[],
+                                     int ignore_full_names_count) {
     status_t status = status_ok;
     Counters::index_info_t index_info;
     ValueCounters().GetCategory(BUFFER_EX_COUNTER_PREFIX, index_info);
@@ -155,7 +158,14 @@ status_t ShmBufferEx::CheckAllStatus(std::ostream &s, status_format_t format) {
             continue;
         }
         GetStat(stat.name, stat);
-        status = std::max(status, CheckStatus(stat, s, format));
+        bool ignore_full = false;
+        for (int j = 0; j < ignore_full_names_count; j++) {
+            if (0 == strcasecmp(stat.name, ignore_full_names[j])) {
+                ignore_full = true;
+                break;
+            }
+        }
+        status = std::max(status, CheckStatus(stat, s, format, ignore_full));
     }
     return status;
 }
