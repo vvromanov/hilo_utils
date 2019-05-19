@@ -22,7 +22,7 @@ counters_format_t str2counters_format(const char *s) {
     if (0 == strcasecmp("nagios_5m", s)) {
         return format_nagios_5m;
     }
-    return format_simple;
+    return format_unknown;
 }
 
 
@@ -95,6 +95,8 @@ void Counters::Dump(std::ostream &s, const char *prefix, counters_format_t forma
         case format_table:
             s << '|' << std::setw(max_len) << "   Name" << "| Value|" << std::endl;
             break;
+        case format_unknown:
+            break;
     }
 
     for (int i = 0; i < index_info.count; i++) {
@@ -116,10 +118,11 @@ void Counters::Dump(std::ostream &s, const char *prefix, counters_format_t forma
                 break;
             case format_nagios_5m:
             case format_nagios_total:
-            case format_nagios: {
+            case format_nagios:
                 s << ' ' << name << '=' << GetCounterValue(index_info.index[i].id);
                 break;
-            }
+            case format_unknown:
+                break;
         }
     }
     switch (format) {
@@ -131,6 +134,8 @@ void Counters::Dump(std::ostream &s, const char *prefix, counters_format_t forma
         case format_simple:
         case format_raw:
         case format_table:
+            break;
+        case format_unknown:
             break;
     }
 }

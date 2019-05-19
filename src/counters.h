@@ -43,6 +43,7 @@ typedef enum {
     format_nagios,
     format_nagios_5m,
     format_nagios_total,
+    format_unknown
 } counters_format_t;
 
 counters_format_t str2counters_format(const char *s);

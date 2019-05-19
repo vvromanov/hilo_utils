@@ -61,6 +61,8 @@ void HistoryCounters::Dump(std::ostream &s, const char *prefix, counters_format_
             s << '|' << std::setw(max_len) << "Counter" << "| Last second | Last 5 mins |    Total    |" << std::endl;
             s << '|' << std::setw(max_len) << "   Name" << "| Count|Volume| Count|Volume| Count|Volume|" << std::endl;
             break;
+        case format_unknown:
+            break;
     }
     for (int i = 0; i < index_info.count; i++) {
         const char *name = Lookup(index_info.index[i].id) + len;
@@ -133,6 +135,8 @@ void HistoryCounters::Dump(std::ostream &s, const char *prefix, counters_format_
                 s << '|' << std::setw(max_len) << name;
                 c->DumpTable(s);
                 break;
+            case format_unknown:
+                break;
         }
     }
     switch (format) {
@@ -144,6 +148,8 @@ void HistoryCounters::Dump(std::ostream &s, const char *prefix, counters_format_
         case format_simple:
         case format_raw:
         case format_table:
+            break;
+        case format_unknown:
             break;
     }
 }

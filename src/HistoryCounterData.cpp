@@ -117,7 +117,6 @@ void HistoryCounterData::DumpTable(std::ostream &s) {
             DumpNumber(s, GetTotalCount(), 6);
             s << '|';
             DumpNumber(s, GetTotalVolume(), 6);
-            s << '|';
             break;
         case HistoryCall:
             s << '|';
