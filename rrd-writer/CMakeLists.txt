@@ -3,7 +3,7 @@ project(${TARGET})
 add_definitions(-DTX_PROGNAME="${TARGET}")
 
 find_package(LibEv REQUIRED)
-find_package(SystemdDaemon)
+#find_package(SystemdDaemon)
 find_package(Systemd)
 
 
@@ -32,7 +32,7 @@ target_link_libraries(${TARGET}
         hilo_utils
         rrd
         ${SYSD_LIB}
-        ${LIBEV_LIBRARIES}
+        ${LIBEV_SHARED_LIB}
         )
 
 install(TARGETS ${TARGET} DESTINATION /opt/telexir/rrd-writer/bin COMPONENT rrd-writer)

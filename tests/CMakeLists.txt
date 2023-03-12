@@ -1,6 +1,8 @@
 set(TARGET test_hilo_utils)
 project(${TARGET})
 
+enable_testing()
+find_package(GTest REQUIRED)
 find_package(ZLIB REQUIRED)
 
 add_executable(${TARGET}
@@ -24,6 +26,7 @@ target_link_libraries(${TARGET}
         test_main
         ${ZLIB_LIBRARY}
         )
+
 
 add_test(${TARGET} ${TARGET})
 if (NOT ${STANDALONE_BUILD})
