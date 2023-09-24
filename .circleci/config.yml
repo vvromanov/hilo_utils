@@ -18,10 +18,9 @@ jobs:
             make -j$(nproc)
       - run:
           name: "Test"
-          command: |
-            make check test
+          command: "tests/test_hilo_utils --getest_output=xml"
       - store_test_results:
-          path: build/out.xml
+          path: build/test_detail.xml
 #      - run:
 #          name: "Install cpp-coveralls"
 #          command: "pip install --user cpp-coveralls"
