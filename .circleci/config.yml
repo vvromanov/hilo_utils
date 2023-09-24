@@ -5,7 +5,7 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  say-hello:
+  compile:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#executor-job
     docker:
@@ -20,13 +20,18 @@ jobs:
       - run:
           name: "Install libs"
           command: "sudo apt-get -qq -y install libev-dev librrd-dev libsystemd-dev libgtest-dev"
-      - run:
-          name: "Install cpp-coveralls"
-          command: "pip install --user cpp-coveralls"
+      - run: mkdir build
+      - run: cmake -S . -B build
+      - run: ctest --test-dir build --output-junit out.xml
+      - store_test_results:
+        path: build/out.xml
+#      - run:
+#          name: "Install cpp-coveralls"
+#          command: "pip install --user cpp-coveralls"
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  compile-workflow:
     jobs:
-      - say-hello
+      - compile
