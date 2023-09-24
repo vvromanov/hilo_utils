@@ -19,7 +19,7 @@ jobs:
           command: "echo Hello, World!"
       - run:
           name: "Install libs"
-          command: "sudo apt-get -qq -y install libev-dev librrd-dev libsystemd-daemon-dev gtest-dev"
+          command: "sudo apt-get -qq -y install libev-dev librrd-dev libsystemd-dev libgtest-dev"
       - run:
           name: "Install cpp-coveralls"
           command: "pip install --user cpp-coveralls"
