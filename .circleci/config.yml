@@ -11,7 +11,7 @@ jobs:
           command: "echo Hello, World!"
       - run:
           name: "Install libs"
-          command: "sudo apt-get -qq -y install libev-dev librrd-dev libsystemd-dev libgtest-dev"
+          command: "sudo apt-get update && sudo apt-get -qq -y install libev-dev librrd-dev libsystemd-dev libgtest-dev"
       - run:
           name: "Build"
           command: "mkdir build && cmake -S . -B build"
