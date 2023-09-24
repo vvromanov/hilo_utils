@@ -7,17 +7,22 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
-      - run:
           name: "Install libs"
           command: "sudo apt-get update && sudo apt-get -qq -y install libev-dev librrd-dev libsystemd-dev libgtest-dev"
       - run:
           name: "Build"
-          command: "mkdir build && cmake -S . -B build"
+          command: "mkdir build && cmake -S . -B build DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=On"
+      - run:
+          name: "build"
+          command: |
+            mkdir build
+            cd build
+            cmake .. -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=On
+            make -j$(nproc)
       - run:
           name: "Test"
-          command: "ctest --test-dir build --output-junit out.xml"
+          command: |
+            make check test
       - store_test_results:
           path: build/out.xml
 #      - run:
