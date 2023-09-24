@@ -17,6 +17,12 @@ jobs:
       - run:
           name: "Say hello"
           command: "echo Hello, World!"
+      - run:
+          name: "Install libs"
+          command: "sudo apt-get -qq -y install libev-dev librrd-dev libsystemd-daemon-dev gtest-dev"
+      - run:
+          name: "Install cpp-coveralls"
+          command: "pip install --user cpp-coveralls"
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
