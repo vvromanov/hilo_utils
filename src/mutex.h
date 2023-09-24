@@ -19,5 +19,9 @@ void simple_mutex_lock(simple_mutex_t& m, const char *location, int location_len
 
 static inline void simple_mutex_unlock(simple_mutex_t& m) {
     m.lock_location[0] = 0;
+/* This member is located in beginning of packed structure */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waddress-of-packed-member"
     pthread_mutex_unlock(&m.mutex);
+#pragma GCC diagnostic pop
 }

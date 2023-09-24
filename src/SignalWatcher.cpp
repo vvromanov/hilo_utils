@@ -1,5 +1,7 @@
 #include <zconf.h>
-#include <execinfo.h>
+#ifndef __CYGWIN__
+#   include <execinfo.h>
+#endif
 #include "SignalWatcher.h"
 #include "LogBase.h"
 
@@ -31,7 +33,7 @@ static const char *signame(int signum) {
         S(SIGPIPE)
         S(SIGALRM)
         S(SIGTERM)
-#ifndef CYGWIN
+#ifndef __CYGWIN__
         S(SIGSTKFLT)
 #endif
         S(SIGCHLD)
@@ -57,12 +59,14 @@ static const char *signame(int signum) {
 
 static void sig_cb(EV_P_ ev_signal *w, int revents) {
     log_write(LOG_LEVEL_NOTICE, "Take %s [%d] signal", signame(w->signum), w->signum);
+#ifndef __CYGWIN__
     if (w->signum == SIGSEGV) {
         size_t size;
         void *array[100];
         size = backtrace(array, 100);
         backtrace_symbols_fd(array, size, STDERR_FILENO);
     }
+#endif
     switch (w->signum) {
         case SIGHUP:
             if (on_sighup) {

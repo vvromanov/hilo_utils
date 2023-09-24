@@ -3,9 +3,11 @@ project(${TARGET})
 add_definitions(-DTX_PROGNAME="${TARGET}")
 
 find_package(LibEv REQUIRED)
+
+if (NOT CYGWIN)
 find_package(SystemdDaemon)
 find_package(Systemd)
-
+endif()
 
 if (NOT SYSTEMD_FOUND)
     set(SYSD_LIB systemd-daemon)

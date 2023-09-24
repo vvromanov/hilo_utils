@@ -204,8 +204,7 @@ TEST(Convert, Bool) {
 
 TEST(Convert, Time) {
     time_t v;
-
-    time_t t = time(NULL);
+    time_t t = 0U;
     struct tm lt = {0};
 
     localtime_r(&t, &lt);

@@ -17,7 +17,7 @@ public:
     }
 
     void GetTime() {
-#ifdef CYGWIN
+#ifdef __CYGWIN__
         clock_gettime(CLOCK_REALTIME, &clock);
 #else
         clock_gettime(CLOCK_MONOTONIC_RAW, &clock);

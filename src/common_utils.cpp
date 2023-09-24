@@ -1,7 +1,13 @@
+#include <cstring>
+#include "common_utils.h"
 #include <arpa/inet.h>
 #include <climits>
-#include "common_utils.h"
 
+#ifdef __CYGWIN__
+extern "C" {
+    char *strptime(const char *__restrict, const char *__restrict, struct tm *__restrict);
+}
+#endif
 bool ConvertString(const char *data, bool &value) {
     bool ok = false;
     if (data && data[0] != 0) {

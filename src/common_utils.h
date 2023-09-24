@@ -1,11 +1,11 @@
 #pragma once
 
-#include <string.h>
 #include <sstream>
 #include <cctype>
 #include <algorithm>
 #include <vector>
 #include <string>
+#include <cstring>
 #include <netinet/in.h>
 
 /* https://stackoverflow.com/questions/12648988/converting-a-defined-constant-number-to-a-string */
