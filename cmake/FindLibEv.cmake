@@ -1,44 +1,28 @@
-#.rst:
-# FindLibEv
-# -----------
-#
-# Try to find the LibEv library
-#
-# Once done this will define
-#
-# ::
-#
-#   LIBEV_FOUND - System has LibEv
-#   LIBEV_INCLUDE_DIR - The LibEv include directory
-#   LIBEV_LIBRARIES - The libraries needed to use LibEv
+# - Find LIBEV (ev++.h, libev.a, and libev.so)
+# This module defines
+#  LIBEV_INCLUDE_DIR, directory containing headers
+#  LIBEV_SHARED_LIB, path to libev's shared library
+#  LIBEV_STATIC_LIB, path to libev's static library
+#  LIBEV_FOUND, whether libev has been found
 
-#=============================================================================
-# Copyright 2006-2009 Kitware, Inc.
-# Copyright 2006 Alexander Neundorf <neundorf@kde.org>
 #
-# Distributed under the OSI-approved BSD License (the "License");
-# see accompanying file Copyright.txt for details.
+# The following only applies to changes made to this file as part of YugaByte development.
 #
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
-#=============================================================================
-# (To distribute this file outside of CMake, substitute the full
-#  License text for the above reference.)
+# Portions Copyright (c) YugaByte, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+# in compliance with the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License
+# is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+# or implied.  See the License for the specific language governing permissions and limitations
+# under the License.
+#
+find_path(LIBEV_INCLUDE_DIR ev.h)
+find_library(LIBEV_SHARED_LIB ev)
 
-find_path(LIBEV_INCLUDE_DIR NAMES ev.h
-   )
-
-if(CYGWIN)
-    find_library(LIBEV_LIBRARIES NAMES libev.dll.a)
-else(CYGWIN)
-    find_library(LIBEV_LIBRARIES NAMES libev.so)
-endif(CYGWIN)
-# handle the QUIETLY and REQUIRED arguments and set LIBEV_FOUND to TRUE if
-# all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibEv
-                                  REQUIRED_VARS LIBEV_LIBRARIES LIBEV_INCLUDE_DIR
-                                  VERSION_VAR LIBEV_VERSION_STRING)
-
-mark_as_advanced(LIBEV_INCLUDE_DIR LIBEV_LIBRARIES)
+find_package_handle_standard_args(LibEv REQUIRED_VARS
+  LIBEV_SHARED_LIB LIBEV_INCLUDE_DIR)

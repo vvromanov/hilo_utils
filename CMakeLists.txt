@@ -76,7 +76,7 @@ if (NOT CYGWIN)
         src/LogOptions.cpp
         src/LogOptions.h
     )
-endif(NOT CYGWIN)
+endif (NOT CYGWIN)
 
 add_library(${TARGET} STATIC
     ${NO_CYGWIN_SOURCES}
@@ -144,16 +144,16 @@ add_library(${TARGET} STATIC
     src/SignalWatcher.h
     src/mutex.cpp
     src/mutex.h
-    )
+)
 
 target_link_libraries(${TARGET}
     pthread
     rt
-    )
+)
 
 target_include_directories(${TARGET} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    )
+)
 
 add_subdirectory(rrd-writer)
 add_subdirectory(test_main)
