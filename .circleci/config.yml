@@ -20,9 +20,11 @@ jobs:
           name: "Test"
           command: |
             pwd
-            build/tests/test_hilo_utils --getest_output=xml
+            cd build
+            tests/test_hilo_utils --gtest_output=xml
+            ls
       - store_test_results:
-          path: test_detail.xml
+          path: build/test_detail.xml
 #      - run:
 #          name: "Install cpp-coveralls"
 #          command: "pip install --user cpp-coveralls"
