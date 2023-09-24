@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   my-compile:
     docker:
-      - image: cimg/base:current
+      - image: cimg/base:stable
     steps:
       - checkout
       - run:
