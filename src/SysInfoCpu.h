@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 #define CPU_STATS \
         CPU_STAT(user)\

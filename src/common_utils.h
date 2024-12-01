@@ -3,6 +3,7 @@
 #include <sstream>
 #include <cctype>
 #include <algorithm>
+#include <functional>
 #include <vector>
 #include <string>
 #include <cstring>
@@ -68,21 +69,17 @@ bool ConvertStringIp(const char *data, in_addr_t &ip_network);
 bool ConvertStringTime(const char *data, time_t& time);
 
 // trim from start
-static inline std::string &ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(),
-                                    std::not1(std::ptr_fun<int, int>(std::isspace))));
-    return s;
+static inline std::string ltrim(const std::string &s) {
+    return std::string(std::find_if(s.cbegin(), s.cend(), [](unsigned char ch) {return !std::isspace(ch); }), s.cend());
 }
 
 // trim from end
-static inline std::string &rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(),
-                         std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-    return s;
+static inline std::string rtrim(const std::string &s) {
+    return std::string(s.cbegin(), std::find_if(s.crbegin(), s.crend(), [](unsigned char ch) {return !std::isspace(ch); }).base());
 }
 
 // trim from both ends
-static inline std::string &trim(std::string &s) {
+static inline std::string trim(const std::string &s) {
     return ltrim(rtrim(s));
 }
 

@@ -2,6 +2,7 @@
 #include "common_utils.h"
 #include <arpa/inet.h>
 #include <climits>
+#include <cstdint>
 
 #ifdef __CYGWIN__
 extern "C" {

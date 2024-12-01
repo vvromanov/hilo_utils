@@ -102,7 +102,7 @@ static bool test_DumpTs(int64_t time, const char* expected) {
     std::ostringstream os;
     DumpTs(os, ts);
     EXPECT_STREQ(expected, os.str().c_str());
-    return os.str().c_str(), expected;
+    return os.str() == expected;
 }
 
 #define N(x) (1##x-100)
