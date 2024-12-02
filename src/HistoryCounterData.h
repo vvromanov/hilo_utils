@@ -6,9 +6,11 @@
 #include <pthread.h>
 #include <ostream>
 
+#define VOLATILE_MEMBER
+
 struct HistoryRec {
-    volatile int64_t count;
-    volatile int64_t sum;
+    int64_t count;
+    int64_t sum;
 } __attribute__((__packed__));
 
 typedef enum {
@@ -134,12 +136,12 @@ public:
 protected:
     simple_mutex_t mutex;
     HistoryRec recs[HistorySize + 1];
-    volatile int64_t current_rec;
+    VOLATILE_MEMBER int64_t current_rec;
     counter_t total_count;
     counter_t total_summ;
     counter_t interval_count;
     counter_t interval_summ;
-    volatile int rec_index;
+    VOLATILE_MEMBER int rec_index;
     int64_t started_ms;
     HistoryCounterType_t type;
 
