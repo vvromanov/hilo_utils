@@ -47,6 +47,4 @@ jobs:
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
-        files: |
-            ${{github.workspace}}/build/test_report.xml
-            ${{github.workspace}}/build/**/report_*.xml
+        files: ${{github.workspace}}/build/test_report*.xml
