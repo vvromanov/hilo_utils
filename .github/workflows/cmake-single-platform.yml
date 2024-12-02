@@ -40,8 +40,8 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --extra-verbose --output-junit test_report.xml --output-on-failure -C ${{env.BUILD_TYPE}}
 
-    - name: List files 
-      run: ls -lR ${{github.workspace}}/build 
+#    - name: List files 
+#      run: ls -lR ${{github.workspace}}/build 
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action@v2
@@ -49,6 +49,7 @@ jobs:
       if: always()
       with:
         files: ${{github.workspace}}/build/test_report*.xml
+ 
     - name: Set badge color
       shell: bash
       run: |
@@ -65,7 +66,7 @@ jobs:
         esac
 
     - name: Create badge
-      uses: emibcn/badge-action@808173dd03e2f30c980d03ee49e181626088eee8
+      uses: emibcn/badge-action
       with:
         label: Tests
         status: '${{ fromJSON( steps.test-results.outputs.json ).formatted.stats.tests }} tests, ${{ fromJSON( steps.test-results.outputs.json ).formatted.stats.runs }} runs: ${{ fromJSON( steps.test-results.outputs.json ).conclusion }}'
@@ -77,8 +78,8 @@ jobs:
       if: >
         github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'master' ||
         github.event_name != 'workflow_run' && github.ref == 'refs/heads/master'
-      uses: andymckay/append-gist-action@6e8d64427fe47cbacf4ab6b890411f1d67c07f3e
+      uses: andymckay/append-gist-action
       with:
         token: ${{ secrets.GIST_TOKEN }}
-        gistURL: https://gist.githubusercontent.com/vvromanov/eaef5a231aa69f7a7f6943470f7d77e8
+        gistURL: https://gist.github.com/vvromanov/eaef5a231aa69f7a7f6943470f7d77e8
         file: badge.svg
