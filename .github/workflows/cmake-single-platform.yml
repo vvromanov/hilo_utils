@@ -40,5 +40,8 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --extra-verbose --output-junit test_report.xml -C ${{env.BUILD_TYPE}}
 
+    - name: Test 
+      run: ls -lr ${{github.workspace}}/build 
+
     - name: Publish Test Summary Results
-      run: npx github-actions-ctrf test_report.xml
+      run: npx github-actions-ctrf ${{github.workspace}}/build/test_report.xml
