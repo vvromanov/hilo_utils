@@ -18,7 +18,7 @@ add_executable(${TARGET}
     #TestTimeUtils.cpp
 #    DumpUtilsTest.cpp
 #    SysInfo.cpp
-#    TestUptime.cpp
+    TestUptime.cpp
 )
 
 target_link_libraries(${TARGET}
