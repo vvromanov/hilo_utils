@@ -7,7 +7,7 @@ find_package(ZLIB REQUIRED)
 add_executable(${TARGET}
     Convert.cpp
     Log_test.cpp
-#    ShmBufferEx_Test.cpp
+    ShmBufferEx_Test.cpp
     ShmBuffer_Test.cpp
 #    TestCounter.cpp
 #    TestCountersInit.cpp
