@@ -6,7 +6,7 @@ find_package(ZLIB REQUIRED)
 
 add_executable(${TARGET}
     Convert.cpp
-#    Log_test.cpp
+    Log_test.cpp
 #    ShmBufferEx_Test.cpp
 #    ShmBuffer_Test.cpp
 #    TestCounter.cpp
@@ -15,7 +15,7 @@ add_executable(${TARGET}
 #    ShmBase_Test.cpp
 #    FileUtils_Test.cpp
 #    Dictionary_test.cpp
-    TestTimeUtils.cpp
+    #TestTimeUtils.cpp
 #    DumpUtilsTest.cpp
 #    SysInfo.cpp
 #    TestUptime.cpp
