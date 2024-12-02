@@ -28,7 +28,10 @@ target_link_libraries(${TARGET}
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
-add_test(${TARGET} ${TARGET})
+add_test(
+    NAME ${TARGET} 
+    COMMAND ${TARGET} --gtest_output=xml:report_${TARGET}
+)
 if (NOT ${STANDALONE_BUILD})
     add_dependencies(check ${TARGET})
 endif ()
