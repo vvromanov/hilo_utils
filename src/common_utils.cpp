@@ -202,6 +202,9 @@ bool ConvertStringTime(const char *data, time_t &time) {
         return ConvertString(data, time);
     }
     time = mktime(&tm);  // t is now your desired time_t
+    if (time == -1) {
+        fprintf(stderr, "Date=%s tm_year=%d", data, tm.tm_year);
+    }
     return true;
 }
 

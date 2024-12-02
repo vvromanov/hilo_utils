@@ -15,7 +15,7 @@ add_executable(${TARGET}
 #    ShmBase_Test.cpp
 #    FileUtils_Test.cpp
 #    Dictionary_test.cpp
-#    TestTimeUtils.cpp
+    TestTimeUtils.cpp
 #    DumpUtilsTest.cpp
 #    SysInfo.cpp
 #    TestUptime.cpp
