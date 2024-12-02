@@ -9,15 +9,15 @@ add_executable(${TARGET}
     Log_test.cpp
     ShmBufferEx_Test.cpp
     ShmBuffer_Test.cpp
-#    TestCounter.cpp
-#    TestCountersInit.cpp
-#    TestCounters.cpp
-#    ShmBase_Test.cpp
-#    FileUtils_Test.cpp
-#    Dictionary_test.cpp
-    #TestTimeUtils.cpp
-#    DumpUtilsTest.cpp
-#    SysInfo.cpp
+    TestCounter.cpp
+    TestCountersInit.cpp
+    TestCounters.cpp
+    ShmBase_Test.cpp
+    FileUtils_Test.cpp
+    Dictionary_test.cpp
+    TestTimeUtils.cpp
+    DumpUtilsTest.cpp
+    SysInfo.cpp
     TestUptime.cpp
 )
 
