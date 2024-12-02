@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <climits>
 #include <cstdint>
+#include "LogBase.h"
 
 #ifdef __CYGWIN__
 extern "C" {
@@ -191,7 +192,7 @@ bool ConvertStringIp(const char *data, in_addr_t &ip_network) {
 }
 
 bool ConvertStringTime(const char *data, time_t &time) {
-    struct tm tm;
+    struct tm tm = { 0 };
     char *p;
     if (strlen(data) > 4 && data[4] == '-') {
         p = strptime(data, DATE_TIME_FORMAT1, &tm);
@@ -203,7 +204,17 @@ bool ConvertStringTime(const char *data, time_t &time) {
     }
     time = mktime(&tm);  // t is now your desired time_t
     if (time == -1) {
-        fprintf(stderr, "Date=%s tm_year=%d", data, tm.tm_year);
+        log_write(LOG_LEVEL_ERR, "\nDate=%s %d-%d-%d %d:%d:%d is_dst=%d zone=%s off=%ld\n ", data, 
+            tm.tm_year,
+            tm.tm_mon+1,
+            tm.tm_mday,
+            tm.tm_hour,
+            tm.tm_min,
+            tm.tm_sec,
+            tm.tm_isdst,
+            tm.tm_zone? tm.tm_zone:"?",
+            tm.tm_gmtoff
+            );
     }
     return true;
 }
