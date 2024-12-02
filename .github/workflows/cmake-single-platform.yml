@@ -78,8 +78,9 @@ jobs:
       if: >
         github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'master' ||
         github.event_name != 'workflow_run' && github.ref == 'refs/heads/master'
-      uses: andymckay/append-gist-action@6e8d64427fe47cbacf4ab6b890411f1d67c07f3e
+      uses: exuanbo/actions-deploy-gist@v1
       with:
         token: ${{ secrets.GIST_TOKEN }}
-        gistURL: https://gist.github.com/vvromanov/eaef5a231aa69f7a7f6943470f7d77e8
-        file: badge.svg
+        gist_id: eaef5a231aa69f7a7f6943470f7d77e8
+        file_path: badge.svg
+        file_type: binary
