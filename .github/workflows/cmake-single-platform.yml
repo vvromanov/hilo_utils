@@ -91,4 +91,4 @@ jobs:
       env:
         COVERALLS_REPO_TOKEN: ${{secrets.COVERALLS_TOKEN}}
       working-directory: ${{github.workspace}}/build
-      run: coveralls --root .. -E ".*external.*" -E ".*CMakeFiles.*" -E ".*tests/.*.cpp.*" -E ".*test_main/.*.cpp.*" -E ".*test_main/.*.h.*" -E ".*test_main/.*.cc.*" -E ".*rrd_writer/.*" -e ../rrd_writer
+      run: coveralls --root .. -E ".*external.*" -E ".*CMakeFiles.*" -E ".*tests/.*.cpp.*" -E ".*test_main/.*.cpp.*" -E ".*test_main/.*.h.*" -E ".*test_main/.*.cc.*" -e rrd-writer
