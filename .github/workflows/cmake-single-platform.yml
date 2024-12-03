@@ -89,5 +89,5 @@ jobs:
 
     - name: Collect coverage
       env:
-        COVERALLS_REPO_TOKEN: ${{COVERALLS_TOKEN}}
+        COVERALLS_REPO_TOKEN: ${{secrets.COVERALLS_TOKEN}}
       run: coveralls --root .. -E ".*external.*" -E ".*CMakeFiles.*" -E ".*tests/.*.cpp.*" -E ".*test_main/.*.cpp.*" -E ".*test_main/.*.h.*" -E ".*test_main/.*.cc.*"
