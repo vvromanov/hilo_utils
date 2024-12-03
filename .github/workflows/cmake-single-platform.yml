@@ -10,7 +10,7 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  BUILD_TYPE: Debug
 
 jobs:
   build:
@@ -23,7 +23,9 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install packages
-      run: sudo apt-get -qq -y install libev-dev librrd-dev libsystemd-dev libgtest-dev libzip-dev
+      run: |
+          sudo apt-get -qq -y install libev-dev librrd-dev libsystemd-dev libgtest-dev libzip-dev
+          pip install --user cpp-coveralls
   
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -32,13 +34,13 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -DCOVERAGE=On
 
     - name: Test
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest --extra-verbose --output-junit test_report.xml --output-on-failure -C ${{env.BUILD_TYPE}}
+      run: ctest -V --output-junit test_report.xml --output-on-failure -C ${{env.BUILD_TYPE}}
 
 #    - name: List files 
 #      run: ls -lR ${{github.workspace}}/build 
@@ -84,3 +86,8 @@ jobs:
         gist_id: eaef5a231aa69f7a7f6943470f7d77e8
         file_path: badge.svg
         file_type: binary
+
+    - name: Collect coverage
+      env:
+        COVERALLS_REPO_TOKEN: ${{COVERALLS_TOKEN}}
+      run: coveralls --root .. -E ".*external.*" -E ".*CMakeFiles.*" -E ".*tests/.*.cpp.*" -E ".*test_main/.*.cpp.*" -E ".*test_main/.*.h.*" -E ".*test_main/.*.cc.*"
