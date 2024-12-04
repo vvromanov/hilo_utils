@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 
 #define TEST_FILE "/tmp/file_utils.tst"
-#define TEST_FILE_INVALID "/_##/"
+#define TEST_FILE_INVALID "/root/*"
 
 TEST(FileUtils, FileExists) {
     FILE *fp = fopen(TEST_FILE, "ab+");
@@ -21,6 +21,24 @@ TEST(FileUtils, FileNotExistsInvalid) {
     EXPECT_FALSE(is_file_exists(""));
     EXPECT_FALSE(is_file_exists(TEST_FILE_INVALID));
     EXPECT_FALSE(is_file_exists("../../../../../../../../../some_file.txt"));
+}
+
+TEST(FileUtils, DirExists) {
+    EXPECT_TRUE(is_dir_exists("."));
+    EXPECT_TRUE(is_dir_exists("/"));
+}
+
+TEST(FileUtils, DirNotExists) {
+    remove(TEST_FILE);
+    EXPECT_FALSE(is_dir_exists(TEST_FILE));
+}
+
+
+TEST(FileUtils, DirNotExistsInvalid) {
+    remove(TEST_FILE);
+    EXPECT_FALSE(is_dir_exists(""));
+    EXPECT_FALSE(is_dir_exists(TEST_FILE_INVALID));
+    EXPECT_FALSE(is_dir_exists("../../../../../../../../../some_file.txt"));
 }
 
 TEST(FileUtils, GetExt) {

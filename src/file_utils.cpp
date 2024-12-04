@@ -17,10 +17,10 @@ bool is_file_exists(const char *name) {
         }
         return false;
     }
-    return true;
+    return S_ISREG(structstat.st_mode);
 }
 
-bool is_dir_exist(const char *name) {
+bool is_dir_exists(const char *name) {
     struct stat structstat;
     if (stat(name, &structstat) == -1) {
         if (errno != ENOENT) {
@@ -89,7 +89,7 @@ bool mkdir_for_file(const char *filename, __mode_t mode) {
         if (*p == '/') {
             *p = 0;
             if (0 != mkdir(tmp, mode)) {
-                if (errno != EEXIST || !is_dir_exist(tmp)) {
+                if (errno != EEXIST || !is_dir_exists(tmp)) {
                     log_write(LOG_LEVEL_ERR_ERRNO, "mkdir(%s) call failed", tmp);
                     return false;
                 }
