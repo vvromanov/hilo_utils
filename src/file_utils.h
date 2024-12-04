@@ -9,4 +9,4 @@ bool remove_test_file(const char* path);
 bool get_file_size(const char *name, size_t &size);
 bool touch(const std::string& pathname);
 bool mkdir_for_file(const char* filename, __mode_t mode);
-const char* get_ext(const char* filename);
+const char* get_ext(const char* path);

@@ -100,11 +100,32 @@ bool mkdir_for_file(const char *filename, __mode_t mode) {
     return true;
 }
 
-const char *get_ext(const char *filename) {
-    const char *p = strrchr(filename, '.');
+static const char* get_filename(const char* path) {
+    if (path == nullptr) {
+        return nullptr;
+    }
+    const char* p = strrchr(path, '/');
+    if (p == nullptr) {
+        p = strrchr(path, '\\');
+    }
     if (p) {
         return p + 1;
     } else {
-        return "";
+        return path;
+    }
+}
+
+const char *get_ext(const char *path) {
+    const char* filename = get_filename(path);
+    if (filename != nullptr) {
+        const char* p = strrchr(filename, '.');
+        if (p) {
+            return p + 1;
+        }
+        else {
+            return "";
+        }
+    } else {
+        return nullptr;
     }
 }

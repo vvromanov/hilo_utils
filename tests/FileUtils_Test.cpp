@@ -22,3 +22,16 @@ TEST(FileUtils, FileNotExistsInvalid) {
     EXPECT_FALSE(is_file_exists(TEST_FILE_INVALID));
     EXPECT_FALSE(is_file_exists("../../../../../../../../../some_file.txt"));
 }
+
+TEST(FileUtils, GetExt) {
+    remove(TEST_FILE);
+    EXPECT_STREQ(nullptr, get_ext(NULL));
+    EXPECT_STREQ("", get_ext(""));
+    EXPECT_STREQ("", get_ext("filename"));
+    EXPECT_STREQ("ext", get_ext("filename.ext"));
+    EXPECT_STREQ("ext", get_ext("dir/filename.ext"));
+    EXPECT_STREQ("ext", get_ext("dir\\filename.ext"));
+    EXPECT_STREQ("", get_ext("dir/filename"));
+    EXPECT_STREQ("", get_ext("dir.ext/filename"));
+    EXPECT_STREQ("", get_ext("dir.ext\\filename"));
+}
