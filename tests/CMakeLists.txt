@@ -17,6 +17,7 @@ add_executable(${TARGET}
     TestCounter.cpp
     TestCounters.cpp
     TestCountersInit.cpp
+    TestHistoryCounters.cpp
     TestTimeUtils.cpp
     TestUptime.cpp
 )

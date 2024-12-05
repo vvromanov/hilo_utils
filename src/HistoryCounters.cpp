@@ -1,5 +1,6 @@
 #include "HistoryCounters.h"
 #include "DumpUtils.h"
+#include "file_utils.h"
 
 static HistoryCounters historyCounters;
 
@@ -8,6 +9,19 @@ HistoryCounters &GetHistoryCounters() {
         historyCounters.Open(COUNTERS_SHM_NAME_HISTORY, counters_suffix);
     }
     return historyCounters;
+}
+
+bool HistoryCountersClear() {
+    char name[NAME_MAX];
+    historyCounters.Close();
+    STRNCPY(name, SHM_LOCATION COUNTERS_SHM_NAME_HISTORY);
+    if (counters_suffix) {
+        STRNCAT(name, counters_suffix);
+    }
+    if (!remove_test_file(name)) {
+        return false;
+    }
+    return true;
 }
 
 HistoryCounterData *HistoryCounters::GetCounterPtr(const char *name) {
