@@ -46,35 +46,21 @@ bool get_file_size(const char *name, size_t &size) {
 
 
 bool remove_test_file(const char *path) {
-    if (!is_file_exists(path)) {
-        return true;
+    struct stat structstat;
+    if (stat(path, &structstat) == -1) {
+        if (errno == ENOENT) {
+            return true;
+        }
+        return false;
+    }
+    if (!S_ISREG(structstat.st_mode)) {
+        return false;
     }
     if (0 == remove(path)) {
         return true;
     }
     log_write(LOG_LEVEL_ERR_ERRNO, "Can't remove '%s'", path);
     return false;
-}
-
-bool touch(const std::string &pathname) {
-    int fd = open(pathname.c_str(),
-                  O_WRONLY | O_CREAT | O_NOCTTY | O_NONBLOCK,
-                  0666);
-    if (fd < 0) // Couldn't open that path.
-    {
-        log_write(LOG_LEVEL_ERR_ERRNO, "%s: Couldn't open() path %s", __PRETTY_FUNCTION__, pathname.c_str());
-        return false;
-    }
-    close(fd);
-    int rc = utimensat(AT_FDCWD,
-                       pathname.c_str(),
-                       nullptr,
-                       0);
-    if (rc) {
-        log_write(LOG_LEVEL_ERR_ERRNO, "%s: Couldn't utimensat() path %s", __PRETTY_FUNCTION__, pathname.c_str());
-        return false;
-    }
-    return true;
 }
 
 bool mkdir_for_file(const char *filename, __mode_t mode) {

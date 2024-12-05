@@ -1,8 +1,19 @@
 #include "file_utils.h"
 #include "gtest/gtest.h"
+#include <ftw.h>
 
 #define TEST_FILE "/tmp/file_utils.tst"
 #define TEST_FILE_INVALID "/root/*"
+#define TEST_DIR "/tmp/level1/level2/level3"
+
+
+TEST(FileUtils, RemoveTestFile) {
+    FILE* fp = fopen(TEST_FILE, "ab+");
+    fclose(fp);
+    EXPECT_TRUE(remove_test_file(TEST_FILE));
+    EXPECT_TRUE(remove_test_file(TEST_FILE));
+    EXPECT_FALSE(remove_test_file(TEST_FILE_INVALID));
+}
 
 TEST(FileUtils, FileExists) {
     FILE *fp = fopen(TEST_FILE, "ab+");
@@ -36,7 +47,7 @@ TEST(FileUtils, FileSize) {
 }
 
 TEST(FileUtils, FileSizeNotExists) {
-    remove(TEST_FILE);
+    EXPECT_TRUE(remove_test_file(TEST_FILE));
     size_t size = 123;
     EXPECT_FALSE(get_file_size(TEST_FILE, size));
     EXPECT_EQ(0, size);
@@ -62,20 +73,44 @@ TEST(FileUtils, DirExists) {
 }
 
 TEST(FileUtils, DirNotExists) {
-    remove(TEST_FILE);
+    EXPECT_TRUE(remove_test_file(TEST_FILE));
     EXPECT_FALSE(is_dir_exists(TEST_FILE));
 }
 
 
 TEST(FileUtils, DirNotExistsInvalid) {
-    remove(TEST_FILE);
+    EXPECT_TRUE(remove_test_file(TEST_FILE));
     EXPECT_FALSE(is_dir_exists(""));
     EXPECT_FALSE(is_dir_exists(TEST_FILE_INVALID));
     EXPECT_FALSE(is_dir_exists("../../../../../../../../../some_file.txt"));
 }
 
+
+static int unlink_cb(const char* fpath, const struct stat* sb, int typeflag, struct FTW* ftwbuf)
+{
+    int rv = remove(fpath);
+
+    if (rv)
+        perror(fpath);
+
+    return rv;
+}
+
+static bool rmrf(const char* path)
+{
+    return 0 == nftw(path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
+}
+
+TEST(FileUtils, mkdir_for_file) {
+    rmrf(TEST_DIR);
+    EXPECT_FALSE(is_dir_exists(TEST_DIR));
+    EXPECT_TRUE(mkdir_for_file(TEST_DIR "/file.txt", 0755));
+    EXPECT_TRUE(is_dir_exists(TEST_DIR));
+    EXPECT_TRUE(rmrf(TEST_DIR));
+}
+
 TEST(FileUtils, GetExt) {
-    remove(TEST_FILE);
+    EXPECT_TRUE(remove_test_file(TEST_FILE));
     EXPECT_STREQ(nullptr, get_ext(NULL));
     EXPECT_STREQ("", get_ext(""));
     EXPECT_STREQ("", get_ext("filename"));
