@@ -4,7 +4,8 @@
 
 #define TEST_FILE "/tmp/file_utils.tst"
 #define TEST_FILE_INVALID "/root/*"
-#define TEST_DIR "/tmp/level1/level2/level3"
+#define TEST_DIR1 "/tmp/level1"
+#define TEST_DIR TEST_DIR1 "/level2/level3"
 
 
 TEST(FileUtils, RemoveTestFile) {
@@ -13,6 +14,8 @@ TEST(FileUtils, RemoveTestFile) {
     EXPECT_TRUE(remove_test_file(TEST_FILE));
     EXPECT_TRUE(remove_test_file(TEST_FILE));
     EXPECT_FALSE(remove_test_file(TEST_FILE_INVALID));
+    EXPECT_FALSE(remove_test_file("/tmp"));
+    EXPECT_FALSE(remove_test_file("/var/log/dmesg"));
 }
 
 TEST(FileUtils, FileExists) {
@@ -107,6 +110,12 @@ TEST(FileUtils, mkdir_for_file) {
     EXPECT_TRUE(mkdir_for_file(TEST_DIR "/file.txt", 0755));
     EXPECT_TRUE(is_dir_exists(TEST_DIR));
     EXPECT_TRUE(rmrf(TEST_DIR));
+
+    EXPECT_TRUE(mkdir_for_file(TEST_DIR "/", 0755));
+    EXPECT_FALSE(is_dir_exists(TEST_DIR));
+    EXPECT_TRUE(rmrf(TEST_DIR1));
+
+    EXPECT_FALSE(mkdir_for_file("/root/level1/file", 0755));
 }
 
 TEST(FileUtils, GetExt) {
