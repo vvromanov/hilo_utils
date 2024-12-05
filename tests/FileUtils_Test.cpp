@@ -17,10 +17,43 @@ TEST(FileUtils, FileNotExists) {
 
 
 TEST(FileUtils, FileNotExistsInvalid) {
-    remove(TEST_FILE);
     EXPECT_FALSE(is_file_exists(""));
     EXPECT_FALSE(is_file_exists(TEST_FILE_INVALID));
     EXPECT_FALSE(is_file_exists("../../../../../../../../../some_file.txt"));
+}
+
+TEST(FileUtils, FileSize) {
+    FILE* fp = fopen(TEST_FILE, "ab+");
+    fclose(fp);
+    size_t size=123;
+    EXPECT_TRUE(get_file_size(TEST_FILE, size));
+    EXPECT_EQ(0, size);
+    fp = fopen(TEST_FILE, "ab+");
+    fwrite("0123456789", 1, 10, fp);
+    fclose(fp);
+    EXPECT_TRUE(get_file_size(TEST_FILE, size));
+    EXPECT_EQ(10, size);
+}
+
+TEST(FileUtils, FileSizeNotExists) {
+    remove(TEST_FILE);
+    size_t size = 123;
+    EXPECT_FALSE(get_file_size(TEST_FILE, size));
+    EXPECT_EQ(0, size);
+}
+
+TEST(FileUtils, FileSizeInvalid) {
+    size_t size = 123;
+    EXPECT_FALSE(get_file_size("", size));
+    EXPECT_EQ(0, size);
+
+    size = 123;
+    EXPECT_FALSE(get_file_size(TEST_FILE_INVALID, size));
+    EXPECT_EQ(0, size);
+
+    size = 123;
+    EXPECT_FALSE(get_file_size("../../../../../../../../../some_file.txt", size));
+    EXPECT_EQ(0, size);
 }
 
 TEST(FileUtils, DirExists) {

@@ -37,6 +37,7 @@ bool get_file_size(const char *name, size_t &size) {
         if (errno != ENOENT) {
             log_write(LOG_LEVEL_ERR_ERRNO, "stat call failed for file %s", name);
         }
+        size = 0;
         return false;
     }
     size = structstat.st_size;

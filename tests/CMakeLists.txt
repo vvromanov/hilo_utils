@@ -6,18 +6,18 @@ find_package(ZLIB REQUIRED)
 
 add_executable(${TARGET}
     Convert.cpp
-    Log_test.cpp
-    ShmBufferEx_Test.cpp
-    ShmBuffer_Test.cpp
-    TestCounter.cpp
-    TestCountersInit.cpp
-    TestCounters.cpp
-    ShmBase_Test.cpp
-    FileUtils_Test.cpp
     Dictionary_test.cpp
-    TestTimeUtils.cpp
     DumpUtilsTest.cpp
+    FileUtils_Test.cpp
+    Log_test.cpp
+    ShmBase_Test.cpp
+    ShmBuffer_Test.cpp
+    ShmBufferEx_Test.cpp
     SysInfo.cpp
+    TestCounter.cpp
+    TestCounters.cpp
+    TestCountersInit.cpp
+    TestTimeUtils.cpp
     TestUptime.cpp
 )
 
