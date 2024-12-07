@@ -4,6 +4,8 @@ project(${TARGET})
 enable_testing()
 find_package(ZLIB REQUIRED)
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z stack-size=10000000")
+
 add_executable(${TARGET}
     Convert.cpp
     Dictionary_test.cpp

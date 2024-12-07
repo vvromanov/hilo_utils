@@ -35,6 +35,10 @@ public:
     typedef HistoryCountersData::Dictionary::index_info_t index_info_t;
     typedef HistoryCountersData::Dictionary::name_rec_t name_rec_t;
 
+    HistoryCounters() {};
+    HistoryCounters(const HistoryCounters&) = delete;
+    HistoryCounters& operator=(const HistoryCounters&) = delete;
+
     bool Open(const char *name, const char *suffix) {
         char name_[NAME_MAX];
         STRNCPY(name_, name);
@@ -116,6 +120,11 @@ public:
     }
 
     void operator++() {
+        Init();
+        ++(*d);
+    }
+
+    void operator++(int) {
         Init();
         ++(*d);
     }
