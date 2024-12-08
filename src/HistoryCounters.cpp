@@ -31,13 +31,6 @@ HistoryCounterData *HistoryCounters::GetCounterPtr(const char *name) {
 }
 
 HistoryCounters::index_t HistoryCounters::GetCounterIndex(const char *name) {
-    {
-        READ_LOCK;
-        auto index = GetData()->dict.Lookup(name);
-        if (index != DICTIONARY_INVALID_INDEX) {
-            return index;
-        }
-    }
     WRITE_LOCK;
     auto index = GetData()->dict.Lookup(name);
     if (index != DICTIONARY_INVALID_INDEX) {

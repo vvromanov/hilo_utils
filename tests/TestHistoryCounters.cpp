@@ -23,6 +23,7 @@ TEST_F(TestHistoryCounters, GetIndex) {
 		char cn[100];
 		snprintf(cn, sizeof(cn), TEST_COUNTER ".%05d", i);
 		EXPECT_EQ(i, GetHistoryCounters().GetCounterIndex(cn));
+		EXPECT_EQ(i, GetHistoryCounters().GetCounterIndex(cn));
 	}
 	EXPECT_EQ(DICTIONARY_INVALID_INDEX, GetHistoryCounters().GetCounterIndex("xxx"));
 }
@@ -91,7 +92,7 @@ TEST_F(TestHistoryCounters, DumpRaw) {
 	));
 	EXPECT_TRUE(HC_TestDump(format_raw,
 		"",
-		"XXX"
+		"test.level1.level2"
 	));
 }
 
