@@ -129,6 +129,11 @@ public:
         ++(*d);
     }
 
+    HistoryCounterType_t GetType() {
+        Init();
+        return d->GetType();
+    }
+
     int64_t GetIntervalCount() {
         Init();
         return d->GetIntervalCount();
@@ -161,7 +166,7 @@ public:
 
     void GetInfo(history_counter_info_t& info) {
         Init();
-        return d->GetInfo(info);
+        d->GetInfo(info);
     }
 
     void Init() {

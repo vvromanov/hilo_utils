@@ -7,6 +7,61 @@
 #define TEST_COUNTERS_FILE "test_history_counters"
 #define TEST_COUNTER "test.level1.level2"
 
+class TestHistoryCounter : public TestBase {
+};
+
+TEST_F(TestHistoryCounter, GetType) {
+	EXPECT_TRUE(HistoryCountersClear());
+	HistoryCounter c1(TEST_COUNTER ".c1", HistoryCount);
+	auto cp=GetHistoryCounters().GetCounterPtr(TEST_COUNTER ".c1");
+	EXPECT_EQ(HistoryCount, cp->GetType());
+	EXPECT_TRUE(HistoryCountersClear());
+}
+
+TEST_F(TestHistoryCounter, GetTotal) {
+	EXPECT_TRUE(HistoryCountersClear());
+	HistoryCounter c1(TEST_COUNTER ".c1", HistoryCount);
+	c1.AddBatch(100, 1000);
+	auto cp = GetHistoryCounters().GetCounterPtr(TEST_COUNTER ".c1");
+	EXPECT_EQ(100, cp->GetTotalCount());
+	EXPECT_EQ(1000, cp->GetTotalVolume());
+	EXPECT_EQ(1000/100, cp->GetTotalAvg());
+	EXPECT_TRUE(HistoryCountersClear());
+}
+
+TEST_F(TestHistoryCounter, GetInterval) {
+	EXPECT_TRUE(HistoryCountersClear());
+	HistoryCounter c1(TEST_COUNTER ".c1", HistoryCount);
+	ClockOverride co;
+	c1.AddBatch(100, 1000);
+	auto cp = GetHistoryCounters().GetCounterPtr(TEST_COUNTER ".c1");
+	EXPECT_EQ(100, cp->GetIntervalCount());
+	EXPECT_EQ(1000, cp->GetIntervalVolume());
+	EXPECT_EQ(1000/100, cp->GetIntervalAvg());
+	co.AddSeconds(10 * 60);
+	EXPECT_EQ(0, cp->GetIntervalCount());
+	EXPECT_EQ(0, cp->GetIntervalVolume());
+	EXPECT_EQ(0, cp->GetIntervalAvg());
+	EXPECT_TRUE(HistoryCountersClear());
+}
+
+
+TEST_F(TestHistoryCounter, GetLast) {
+	EXPECT_TRUE(HistoryCountersClear());
+	HistoryCounter c1(TEST_COUNTER ".c1", HistoryCount);
+	ClockOverride co;
+	c1.AddBatch(100, 1000);
+	auto cp = GetHistoryCounters().GetCounterPtr(TEST_COUNTER ".c1");
+	EXPECT_EQ(0, cp->GetLastCount());
+	EXPECT_EQ(0, cp->GetLastVolume());
+	EXPECT_EQ(0, cp->GetLastAvg());
+	co.AddSeconds(1);
+	EXPECT_EQ(100, cp->GetLastCount());
+	EXPECT_EQ(1000, cp->GetLastVolume());
+	EXPECT_EQ(1000/100, cp->GetLastAvg());
+	EXPECT_TRUE(HistoryCountersClear());
+}
+
 class TestHistoryCounters : public TestBase {
 };
 
@@ -26,6 +81,7 @@ TEST_F(TestHistoryCounters, GetIndex) {
 		EXPECT_EQ(i, GetHistoryCounters().GetCounterIndex(cn));
 	}
 	EXPECT_EQ(DICTIONARY_INVALID_INDEX, GetHistoryCounters().GetCounterIndex("xxx"));
+	EXPECT_TRUE(HistoryCountersClear());
 }
 
 TEST_F(TestHistoryCounters, GetCounterPtr) {
@@ -36,6 +92,7 @@ TEST_F(TestHistoryCounters, GetCounterPtr) {
 		EXPECT_NE(nullptr, GetHistoryCounters().GetCounterPtr(cn));
 	}
 	EXPECT_EQ(nullptr, GetHistoryCounters().GetCounterPtr("xxx"));
+	EXPECT_TRUE(HistoryCountersClear());
 }
 
 static void FillTestData(ClockOverride& co, HistoryCounter& c1, HistoryCounter& c2, HistoryCounter& c3) {
@@ -47,6 +104,18 @@ static void FillTestData(ClockOverride& co, HistoryCounter& c1, HistoryCounter& 
 		c3.AddVolume(i * 100);
 		co.AddSeconds(1);
 	}
+}
+
+TEST_F(TestHistoryCounters, GetInfo) {
+	EXPECT_TRUE(HistoryCountersClear());
+	HistoryCounter c1(TEST_COUNTER ".c1", HistoryCount);
+	HistoryCounter c2(TEST_COUNTER ".c2", HistoryCall);
+	HistoryCounter c3(TEST_COUNTER ".c3", HistoryVolume);
+	c1.AddBatch(100, 1000);
+	history_counter_info_t info;
+	c1.GetInfo(info);
+	EXPECT_EQ(100, info.total_count);
+	EXPECT_EQ(1000, info.total_summ);
 }
 
 TEST_F(TestHistoryCounters, GetCategory) {
