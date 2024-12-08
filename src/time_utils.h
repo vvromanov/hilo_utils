@@ -5,6 +5,9 @@
 #include <sys/time.h>
 #include <ostream>
 
+extern bool clock_override;
+extern int64_t clock_override_us;
+
 static inline int64_t getTimeMs(struct timeval val) {
     return val.tv_sec * ((int64_t) 1000) + val.tv_usec / 1000;
 }
@@ -22,23 +25,31 @@ static inline int64_t getTimeMs(void) {
 }
 
 static inline int64_t getClockUs(void) {
-    struct timespec val;
+    if (clock_override) {
+        return clock_override_us;
+    } else {
+        struct timespec val;
 #ifdef CYGWIN
-    clock_gettime(CLOCK_REALTIME, &val);
+        clock_gettime(CLOCK_REALTIME, &val);
 #else
-    clock_gettime(CLOCK_MONOTONIC, &val);
+        clock_gettime(CLOCK_MONOTONIC, &val);
 #endif
-    return val.tv_sec * ((int64_t) 1000000) + val.tv_nsec / 1000;
+        return val.tv_sec * ((int64_t)1000000) + val.tv_nsec / 1000;
+    }
 }
 
 static inline int64_t getClockMs(void) {
-    struct timespec val;
+    if (clock_override) {
+        return clock_override_us/1000;
+    } else {
+        struct timespec val;
 #ifdef CYGWIN
-    clock_gettime(CLOCK_REALTIME, &val);
+        clock_gettime(CLOCK_REALTIME, &val);
 #else
-    clock_gettime(CLOCK_MONOTONIC, &val);
+        clock_gettime(CLOCK_MONOTONIC, &val);
 #endif
-    return val.tv_sec * ((int64_t) 1000) + val.tv_nsec / 1000000;
+        return val.tv_sec * ((int64_t)1000) + val.tv_nsec / 1000000;
+    }
 }
 
 const char *get_time_str(time_t t, bool include_date);

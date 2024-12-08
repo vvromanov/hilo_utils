@@ -22,7 +22,7 @@ add_executable(${TARGET}
     TestHistoryCounters.cpp
     TestTimeUtils.cpp
     TestUptime.cpp
-)
+ "ClockOverride.h")
 
 target_link_libraries(${TARGET}
     test_main

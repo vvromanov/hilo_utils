@@ -63,15 +63,15 @@ static char getSymbol(uint64_t mul) {
     switch (mul) {
         case 1000ULL:
             return 'k';
-        case 1000000ULL:
+        case 1000'000ULL:
             return 'M';
-        case 1000000000ULL:
+        case 1000'000'000ULL:
             return 'G';
-        case 1000000000000ULL:
+        case 1000'000'000'000ULL:
             return 'T';
-        case 1000000000000000ULL:
+        case 1000'000'000'000'000ULL:
             return 'P';
-        case 1000000000000000000ULL:
+        case 1000'000'000'000'000'000ULL:
             return 'E';
         default:
             return '?';

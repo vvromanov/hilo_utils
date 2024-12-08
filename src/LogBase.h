@@ -7,7 +7,7 @@
 #define LOG_ERRNO 0x10
 #define LOG_LEVEL_MASK 0xF
 
-#define LOG_MAX_MSG_LEN 100000
+#define LOG_MAX_MSG_LEN 100'000
 
 typedef enum {
     LOG_LEVEL_DISABLED = 0,     /* Logging disabled */

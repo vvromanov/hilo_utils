@@ -3,6 +3,8 @@
 #include <time.h>
 #include <iomanip>
 
+bool clock_override;
+int64_t clock_override_us;
 
 //static __inline__ uint64_t rdtsc(void)
 //{
@@ -68,13 +70,13 @@ void time2ts(time_t t, timestamp_t &ts) {
 }
 
 void us2ts(int64_t us, timestamp_t &ts) {
-    time2ts(us / 1000000, ts);
-    ts.fraction = (us % 1000000) * 1000;
+    time2ts(us / 1000'000, ts);
+    ts.fraction = (us % 1000'000) * 1000;
 }
 
 void DumpTs(std::ostream &os, const timestamp_t &ts) {
     char tmp[100];
     snprintf(tmp, sizeof(tmp), "%d/%02d/%02d %02d:%02d:%02d.%03d", ts.year, ts.month, ts.day, ts.hour, ts.minute,
-             ts.second, ts.fraction / 1000000);
+             ts.second, ts.fraction / 1000'000);
     os<<tmp;
 }

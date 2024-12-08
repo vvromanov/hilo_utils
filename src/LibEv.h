@@ -26,7 +26,7 @@
     int64_t now = getClockUs(); \
     int64_t stop = INT64_MAX; \
     if (w) { \
-        stop = now + (w->repeat * (1000000)); \
+        stop = now + (w->repeat * (1000'000)); \
     } \
     do { \
         if (!func()) { \
