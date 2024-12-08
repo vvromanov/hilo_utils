@@ -21,8 +21,10 @@ TEST_F(TestHistoryCounter, GetType) {
 TEST_F(TestHistoryCounter, GetTotal) {
 	EXPECT_TRUE(HistoryCountersClear());
 	HistoryCounter c1(TEST_COUNTER ".c1", HistoryCount);
-	c1.AddBatch(100, 1000);
 	auto cp = GetHistoryCounters().GetCounterPtr(TEST_COUNTER ".c1");
+	EXPECT_EQ(0, cp->GetTotalAvg());
+
+	c1.AddBatch(100, 1000);
 	EXPECT_EQ(100, cp->GetTotalCount());
 	EXPECT_EQ(1000, cp->GetTotalVolume());
 	EXPECT_EQ(1000/100, cp->GetTotalAvg());
