@@ -19,8 +19,22 @@ TEST_F(TestHistoryCounters, Open) {
 
 TEST_F(TestHistoryCounters, GetIndex) {
 	EXPECT_TRUE(HistoryCountersClear());
-	EXPECT_EQ(0, GetHistoryCounters().GetCounterIndex(TEST_COUNTER ".c1"));
-	EXPECT_EQ(1, GetHistoryCounters().GetCounterIndex(TEST_COUNTER ".c2"));
+	for (int i = 0; i < COUNTER_MAX_AMOUNT_HISTORY; i++) {
+		char cn[100];
+		snprintf(cn, sizeof(cn), TEST_COUNTER ".%05d", i);
+		EXPECT_EQ(i, GetHistoryCounters().GetCounterIndex(cn));
+	}
+	EXPECT_EQ(DICTIONARY_INVALID_INDEX, GetHistoryCounters().GetCounterIndex("xxx"));
+}
+
+TEST_F(TestHistoryCounters, GetCounterPtr) {
+	EXPECT_TRUE(HistoryCountersClear());
+	for (int i = 0; i < COUNTER_MAX_AMOUNT_HISTORY; i++) {
+		char cn[100];
+		snprintf(cn, sizeof(cn), TEST_COUNTER ".%05d", i);
+		EXPECT_NE(nullptr, GetHistoryCounters().GetCounterPtr(cn));
+	}
+	EXPECT_EQ(nullptr, GetHistoryCounters().GetCounterPtr("xxx"));
 }
 
 static void FillTestData(ClockOverride& co, HistoryCounter& c1, HistoryCounter& c2, HistoryCounter& c3) {

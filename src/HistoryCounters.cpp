@@ -18,10 +18,7 @@ bool HistoryCountersClear() {
     if (counters_suffix) {
         STRNCAT(name, counters_suffix);
     }
-    if (!remove_test_file(name)) {
-        return false;
-    }
-    return true;
+    return remove_test_file(name);
 }
 
 HistoryCounterData *HistoryCounters::GetCounterPtr(const char *name) {
