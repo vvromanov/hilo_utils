@@ -63,7 +63,7 @@ TEST_F(TestHistoryCounters, GetCategory) {
 	EXPECT_TRUE(HistoryCountersClear());
 }
 
-static bool HC_TestDump(counters_format_t format, const char* expected, const char* prefix = NULL) {
+static bool HC_TestDump(counters_format_t format, const char* expected, const char* prefix = NULL, int interval_before_dump=0) {
 	EXPECT_TRUE(HistoryCountersClear());
 	HistoryCounter c1(TEST_COUNTER ".c1", HistoryCount);
 	HistoryCounter c2(TEST_COUNTER ".c2", HistoryCall);
@@ -71,6 +71,7 @@ static bool HC_TestDump(counters_format_t format, const char* expected, const ch
 	HistoryCounter xxx("xxx", HistoryVolume);
 	ClockOverride co;
 	FillTestData(co, c1, c2, c3);
+	co.AddSeconds(interval_before_dump);
 	std::stringstream ss;
 	GetHistoryCounters().Dump(ss, prefix ? prefix : TEST_COUNTER, format, false);
 	EXPECT_EQ(expected, ss.str());
@@ -82,6 +83,15 @@ TEST_F(TestHistoryCounters, DumpSimple) {
 		"test.level1.level2.c1 1 900 1800\n"
 		"test.level1.level2.c2 1200 10 270300 10 360600 10\n"
 		"test.level1.level2.c3 1 60000 300 13515000 600 18030000\n"
+	));
+}
+
+TEST_F(TestHistoryCounters, DumpSimpleBigDelay) {
+	EXPECT_TRUE(HC_TestDump(format_simple,		
+		"test.level1.level2.c1 0 0 1800\n"
+		"test.level1.level2.c2 0 0 0 0 360600 10\n"
+		"test.level1.level2.c3 0 0 0 0 600 18030000\n"
+		,NULL, 60*10
 	));
 }
 

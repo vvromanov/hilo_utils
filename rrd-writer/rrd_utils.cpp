@@ -248,8 +248,6 @@ static bool rrd_update_history_counter(HistoryCounters::name_rec_t &counter) {
                     return false;
                 }
                 break;
-            case HistoryUnknown:
-                return true;
         }
     }
     char update[256];
@@ -263,8 +261,6 @@ static bool rrd_update_history_counter(HistoryCounters::name_rec_t &counter) {
         case HistoryCall: //Учитываем количество и среднее время вызова
             snprintf(update, sizeof(update), "%lu:%ld:%ld", time(NULL), d->GetLastCount(), d->GetLastAvg());
             break;
-        case HistoryUnknown:
-            return true;
     }
     return rrd_update(filename, update);
 }

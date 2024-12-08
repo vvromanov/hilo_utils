@@ -88,8 +88,6 @@ void HistoryCounterData::DumpSimple(std::ostream &s) {
             s << ' ' << GetTotalCount();
             s << ' ' << GetTotalAvg();
             break;
-        case HistoryUnknown:
-            s << '?';
     }
 }
 
@@ -132,8 +130,6 @@ void HistoryCounterData::DumpTable(std::ostream &s) {
             s << '|';
             DumpNumber(s, GetTotalAvg(), 6);
             break;
-        case HistoryUnknown:
-            break;
     }
     s << "|" << std::endl;
 }
@@ -152,8 +148,6 @@ void HistoryCounterData::DumpHtml(std::ostream &s) {
         case HistoryCall:
             DumpNumber(s, GetLastAvg(), 6);
             break;
-        case HistoryUnknown:
-            break;
     }
     s << "</td><td align='right'>";
     DumpNumber(s, GetIntervalCount(), 6);
@@ -167,8 +161,6 @@ void HistoryCounterData::DumpHtml(std::ostream &s) {
             break;
         case HistoryCall:
             DumpNumber(s, GetIntervalAvg(), 6);
-            break;
-        case HistoryUnknown:
             break;
     }
 
@@ -184,8 +176,6 @@ void HistoryCounterData::DumpHtml(std::ostream &s) {
             break;
         case HistoryCall:
             DumpNumber(s, GetTotalAvg(), 6);
-            break;
-        case HistoryUnknown:
             break;
     }
     s << "</td></tr>" << std::endl;

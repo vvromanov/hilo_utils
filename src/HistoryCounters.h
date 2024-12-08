@@ -19,7 +19,7 @@ public:
     void Init(size_t size) {
         dict.Clear();
         for (int i = 0; i < COUNTER_MAX_AMOUNT_HISTORY; i++) {
-            counters[i].Init(HistoryUnknown);
+            counters[i].Init(HistoryCount);
         }
     }
 

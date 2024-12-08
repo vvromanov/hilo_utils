@@ -77,7 +77,6 @@ void HistoryCounters::Dump(std::ostream &s, const char *prefix, counters_format_
                 s << '=' << c->GetLastCount();
                 switch (c->GetType()) {
                     case HistoryCount:
-                    case HistoryUnknown:
                         break;
                     case HistoryVolume:
                         s << ' ' << name;
@@ -94,7 +93,6 @@ void HistoryCounters::Dump(std::ostream &s, const char *prefix, counters_format_
                 s << '=' << c->GetTotalCount();
                 switch (c->GetType()) {
                     case HistoryCount:
-                    case HistoryUnknown:
                         break;
                     case HistoryVolume:
                         s << ' ' << name;
@@ -111,7 +109,6 @@ void HistoryCounters::Dump(std::ostream &s, const char *prefix, counters_format_
                 s << '=' << c->GetIntervalCount();
                 switch (c->GetType()) {
                     case HistoryCount:
-                    case HistoryUnknown:
                         break;
                     case HistoryVolume:
                         s << ' ' << name;

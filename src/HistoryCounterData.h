@@ -14,7 +14,6 @@ struct HistoryRec {
 } __attribute__((__packed__));
 
 typedef enum {
-    HistoryUnknown,
     HistoryCount, //Просто какое-то событие
     HistoryVolume, //Учитываем количество и объем. Например, сколько данных передано по сети
     HistoryCall //Учитываем количество и среднее время вызова
