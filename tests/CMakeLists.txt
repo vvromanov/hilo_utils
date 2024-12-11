@@ -4,8 +4,6 @@ project(${TARGET})
 enable_testing()
 find_package(ZLIB REQUIRED)
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z stack-size=10000000")
-
 add_executable(${TARGET}
     Convert.cpp
     Dictionary_test.cpp
@@ -22,7 +20,8 @@ add_executable(${TARGET}
     TestHistoryCounters.cpp
     TestTimeUtils.cpp
     TestUptime.cpp
- "ClockOverride.h")
+    ClockOverride.h
+)
 
 target_link_libraries(${TARGET}
     test_main
@@ -31,10 +30,12 @@ target_link_libraries(${TARGET}
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
-add_test(
-    NAME ${TARGET} 
-    COMMAND ${TARGET} --gtest_output=xml:../test_report_${TARGET}.xml
+include(GoogleTest)
+add_dependencies(check ${TARGET})
+
+gtest_discover_tests(
+    ${TARGET}
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    XML_OUTPUT_DIR gtest-reports
+    DISCOVERY_MODE PRE_TEST
 )
-if (NOT ${STANDALONE_BUILD})
-    add_dependencies(check ${TARGET})
-endif ()

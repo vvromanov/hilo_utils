@@ -58,9 +58,15 @@ else (hasParent)
         add_definitions(-DCOVERAGE_TEST)
     endif (COVERAGE)
 
-    if (NOT CYGWIN)
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fstack-protector-strong -static-libasan")
-    endif (NOT CYGWIN)
+    if (CYGWIN)
+       set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/")
+    else (CYGWIN)
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin_wsu/")
+        if (CMAKE_BUILD_TYPE MATCHES Debug)
+            set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fsanitize=leak -fsanitize=undefined -fstack-protector-strong -static-libasan")
+        endif ()
+    endif (CYGWIN)
+   
     add_definitions(-DTX_VERSION_VERSION_STR="1.0.0")
     add_definitions(-DTX_VERSION_BUILD_STR="0")
     add_definitions(-DTX_VERSION_VARIANT="${CMAKE_BUILD_TYPE}")
@@ -151,6 +157,20 @@ target_include_directories(${TARGET} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-add_subdirectory(rrd-writer)
+# not supported on cygwin
+if (NOT CYGWIN)
+    add_subdirectory(rrd-writer)
+endif (NOT CYGWIN)
+
 add_subdirectory(test_main)
 add_subdirectory(tests)
+
+if (CYGWIN)
+    add_custom_target(bins ALL
+        COMMAND cp -f /cygdrive/c/work/tools/${CYGWIN_DIR}/bin/cygwin1.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        COMMAND cp -f /cygdrive/c/work/tools/${CYGWIN_DIR}/bin/cyggcc_s-seh-1.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        COMMAND cp -f /cygdrive/c/work/tools/${CYGWIN_DIR}/bin/cygstdc++-6.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        COMMAND cp -f /cygdrive/c/work/tools/${CYGWIN_DIR}/bin/cygz.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        COMMENT "Copy ${CYGWIN_DIR} libraries to output directory"
+        )
+endif (CYGWIN)

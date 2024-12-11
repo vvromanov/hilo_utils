@@ -1,4 +1,7 @@
-#include <ShmFileBase.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+
+#include "ShmFileBase.h"
 #include "ShmBase.h"
 #include "gtest/gtest.h"
 #include "file_utils.h"
@@ -16,6 +19,12 @@ public:
 class ShmBaseTest : public ShmFileBase<TestData> {
 
 };
+
+TEST_F(ShmBaseTest, shm_open) {
+    int fd = shm_open(TestShmName(), (O_CREAT | O_RDWR), (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH));
+    EXPECT_NE(-1, fd);
+    close(fd);
+}
 
 TEST_F(ShmBaseTest, Open) {
     ShmBase test;

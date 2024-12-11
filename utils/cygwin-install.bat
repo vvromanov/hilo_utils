@@ -19,13 +19,14 @@ IF NOT EXIST %CYGWIN_PATH%/cygwin-setup.exe (
 )
  
 REM -- These are the packages we will install (in addition to the default packages)
-SET PACKAGES=make,gdb,gcc-g++,gcc-core,cmake,doxygen,libev-devel,libminizip-devel
-:gcovr,python39-devel,libxslt-devel
+SET PACKAGES=make,gdb,gcc-g++,gcc-core,cmake,doxygen,libev-devel,libminizip-devel,libxml2-devel,libxslt-devel,python39-devel,mc
+REM gcovr,python39-devel,libxslt-devel
  
 ECHO *** INSTALLING
 %CYGWIN_PATH%\cygwin-setup --quiet-mode --no-desktop --download --local-install --no-admin --no-verify --upgrade-also --local-package-dir "%TEMP%/cygwin_packages" --site %SITE% --root %CYGWIN_PATH% -P %PACKAGES%
 
 ECHO *** INSTALLING gcovr
+%CYGWIN_PATH%\bin\bash --login -c "pip3 install --upgrade pip"
 %CYGWIN_PATH%\bin\bash --login -c "python3.9 -m pip install gcovr"
 del /Q %CYGWIN_PATH%\var\log\*
 ENDLOCAL
