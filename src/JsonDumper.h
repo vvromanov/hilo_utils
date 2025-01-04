@@ -1,7 +1,6 @@
 #pragma once
 #include <cmath>
 #include <cstdint>
-#include <format>
 #include <functional>
 #include <ostream>
 #include <stack>
@@ -200,9 +199,11 @@ public:
                 case '\t':
                     s << "\\t";
                     break;
-                default:
-                    s << std::format("\\u{:04x}", static_cast<uint16_t>(c));
-                    break;
+                default: {
+                    char tmp[sizeof("\\u0000") + 1];
+                    snprintf(tmp, sizeof(tmp), "\\u%04x", c);
+                    s << tmp;
+                } break;
                 }
             } else {
                 s << c;
