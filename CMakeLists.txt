@@ -91,6 +91,7 @@ add_library(${TARGET} STATIC
     src/common_utils.cpp
     src/DumpUtils.cpp
     src/DumpUtils.h
+    src/JsonDumper.h
     src/file_utils.h
     src/file_utils.cpp
     src/Status.cpp
