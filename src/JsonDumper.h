@@ -234,11 +234,7 @@ protected:
             return;
         }
         if (!state.first_element && state.in_array) {
-            if (state_storage.size() > 1) {
-                s << ',';
-            } else {
-                s << ", ";
-            }
+            s << ",";
         }
         if (state.wrap) {
             if (!member_started) {

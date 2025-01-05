@@ -63,6 +63,8 @@ static void DumpTest(JsonDumper& j)
     j.StartMember("UInt64") << (uint64_t)10;
     j.StartMember("double") << 12.345;
     j.StartMember("float") << 12.345f;
+    j.StartMember("NaN") << std::nan("");
+    j.StartMember("NaNf") << std::nanf("");
     j.StartMember("Char") << (char)'c';
     j.StartMember("c_str") << "c_string";
     j.StartMember("std_str") << std::string("std::string");
@@ -76,7 +78,7 @@ static void DumpTest(JsonDumper& j)
     j.End();
 }
 
-TEST(JsonDumper, Object)
+TEST(JsonDumper, ObjectWrap)
 {
     std::ostringstream ss;
     JsonDumper j(ss);
@@ -95,6 +97,8 @@ TEST(JsonDumper, Object)
         "    \"UInt64\": 10,\n"
         "    \"double\": 12.345,\n"
         "    \"float\": 12.345,\n"
+        "    \"NaN\": \"nan\",\n"
+        "    \"NaNf\": \"nan\",\n"
         "    \"Char\": \"c\",\n"
         "    \"c_str\": \"c_string\",\n"
         "    \"std_str\": \"std::string\",\n"
@@ -108,5 +112,16 @@ TEST(JsonDumper, Object)
         "    ]\n"
         "  }\n"
         "}",
+        ss.str());
+}
+
+TEST(JsonDumper, ObjectNoWrap)
+{
+    std::ostringstream ss;
+    JsonDumper j(ss);
+    DumpTest(j);
+    EXPECT_EQ(
+        "{\"Test\": {\"Int8\": -50, \"Int16\": -10, \"Int32\": -10, \"Int64\": -10, \"UInt8\": 70, \"UInt16\": 10, \"UInt32\": 10, \"UInt64\": 10, \"double\": 12.345, \"float\": 12.345, \"NaN\": \"nan\", \"NaNf\": \"nan\", \"Char\": \"c\", \"c_str\": \"c_string\", "
+        "\"std_str\": \"std::string\", \"string_view\": \"sv\", \"arr\": [0,1,2,3,4]}}",
         ss.str());
 }
