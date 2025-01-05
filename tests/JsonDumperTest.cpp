@@ -1,6 +1,36 @@
 #include "JsonDumper.h"
 #include "gtest/gtest.h"
 
+static void TestEscape(char ch, const char* escaped) {
+    char expected[100];
+    snprintf(expected, sizeof(expected), "\"%s\"", escaped);
+    { //As char
+        std::ostringstream ss;
+        JsonDumper j(ss);
+        j << ch;
+        EXPECT_EQ(expected, ss.str());
+    }
+    { // As string
+        std::ostringstream ss;
+        JsonDumper j(ss);
+        char str[2] = { ch, '\0' };
+        j << str;
+        EXPECT_EQ(expected, ss.str());
+    }
+}
+
+TEST(JsonDumper, Escape) {
+    TestEscape('A', "A"); //No escape
+    TestEscape('"', "\\\"");
+    TestEscape('\\', "\\\\");
+    TestEscape('\n', "\\n");
+    TestEscape('\r', "\\r");
+    TestEscape('\b', "\\b");
+    TestEscape('\f', "\\f");
+    TestEscape('\t', "\\t");
+    TestEscape('\x01', "\\u0001");
+}
+
 TEST(JsonDumper, EmptyObject)
 {
     std::ostringstream ss;
@@ -31,6 +61,8 @@ static void DumpTest(JsonDumper& j)
     j.StartMember("UInt16") << (uint16_t)10;
     j.StartMember("UInt32") << (uint32_t)10;
     j.StartMember("UInt64") << (uint64_t)10;
+    j.StartMember("double") << 12.345;
+    j.StartMember("float") << 12.345f;
     j.StartMember("Char") << (char)'c';
     j.StartMember("c_str") << "c_string";
     j.StartMember("std_str") << std::string("std::string");
@@ -61,6 +93,8 @@ TEST(JsonDumper, Object)
         "    \"UInt16\": 10,\n"
         "    \"UInt32\": 10,\n"
         "    \"UInt64\": 10,\n"
+        "    \"double\": 12.345,\n"
+        "    \"float\": 12.345,\n"
         "    \"Char\": \"c\",\n"
         "    \"c_str\": \"c_string\",\n"
         "    \"std_str\": \"std::string\",\n"

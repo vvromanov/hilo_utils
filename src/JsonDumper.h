@@ -39,7 +39,7 @@ public:
 
     JsonDumper& StartObject(bool is_array = false)
     {
-        NextItem();
+        NextItem(true);
         Push(is_array);
         s << (is_array ? '[' : '{');
         if (state.wrap) {
@@ -106,9 +106,20 @@ public:
         return *this << std::string_view(str);
     }
 
+    JsonDumper& operator<<(char* str)
+    {
+        return *this << std::string_view(str);
+    }
+
     JsonDumper& operator<<(const std::string& str)
     {
         return *this << std::string_view(str);
+    }
+
+    JsonDumper& operator<<(char ch)
+    {
+//        char tmp[2] = { ch, '\0' };
+        return *this << std::string_view(&ch, 1);
     }
 
     JsonDumper& operator<<(double v)
@@ -116,9 +127,7 @@ public:
         if (std::isnan(v)) {
             return *this << "nan";
         }
-        if (state.in_array) {
-            NextItem();
-        }
+        NextItem();
         s << v;
         member_started = false;
         return *this;
@@ -134,9 +143,7 @@ public:
 
     JsonDumper& operator<<(int64_t v)
     {
-        if (state.in_array) {
-            NextItem();
-        }
+        NextItem();
         s << v;
         member_started = false;
         return *this;
@@ -144,9 +151,7 @@ public:
 
     JsonDumper& operator<<(uint64_t v)
     {
-        if (state.in_array) {
-            NextItem();
-        }
+        NextItem();
         s << v;
         member_started = false;
         return *this;
@@ -161,9 +166,7 @@ public:
     template <class T>
     JsonDumper& operator<<(T v)
     {
-        if (state.in_array) {
-            NextItem();
-        }
+        NextItem();
         s << '"' << v << '"';
         member_started = false;
         return *this;
@@ -171,9 +174,7 @@ public:
 
     JsonDumper& operator<<(std::string_view sv)
     {
-        if (state.in_array) {
-            NextItem();
-        }
+        NextItem();
         s << '"';
         for (auto c : sv) {
             if ((c == '"') || (c == '\\') || (('\0' < c) && (c < ' '))) {
@@ -226,8 +227,12 @@ protected:
         state = state_storage.top();
         state_storage.pop();
     }
-    void NextItem()
+
+    void NextItem(bool force = false)
     {
+        if (!force && !state.in_array) {
+            return;
+        }
         if (!state.first_element && state.in_array) {
             if (state_storage.size() > 1) {
                 s << ',';
