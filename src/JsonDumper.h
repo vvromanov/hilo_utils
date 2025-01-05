@@ -4,8 +4,7 @@
 #include <functional>
 #include <ostream>
 #include <stack>
-
-const char* GetIndentStr(uint32_t indent);
+#include "DumpUtils.h"
 
 class JsonDumper {
     std::ostream& s;
@@ -24,6 +23,7 @@ public:
         : s { _s }
     {
     }
+    
     void SetWrap(bool _wrap = true) { state.wrap = _wrap; }
 
     void NewLine()
@@ -48,6 +48,7 @@ public:
         member_started = false;
         return *this;
     }
+
     JsonDumper& StartArray()
     {
         return StartObject(true);
@@ -74,6 +75,7 @@ public:
         member_started = true;
         return *this;
     }
+
     JsonDumper& End()
     {
         if (state.wrap) {
@@ -106,11 +108,6 @@ public:
         return *this << std::string_view(str);
     }
 
-    JsonDumper& operator<<(char* str)
-    {
-        return *this << std::string_view(str);
-    }
-
     JsonDumper& operator<<(const std::string& str)
     {
         return *this << std::string_view(str);
@@ -118,7 +115,6 @@ public:
 
     JsonDumper& operator<<(char ch)
     {
-//        char tmp[2] = { ch, '\0' };
         return *this << std::string_view(&ch, 1);
     }
 
@@ -162,15 +158,6 @@ public:
     JsonDumper& operator<<(uint16_t v) { return *this << (uint64_t)v; }
     JsonDumper& operator<<(int8_t v) { return *this << (int64_t)v; }
     JsonDumper& operator<<(uint8_t v) { return *this << (uint64_t)v; }
-
-    template <class T>
-    JsonDumper& operator<<(T v)
-    {
-        NextItem();
-        s << '"' << v << '"';
-        member_started = false;
-        return *this;
-    }
 
     JsonDumper& operator<<(std::string_view sv)
     {
