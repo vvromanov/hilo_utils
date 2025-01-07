@@ -125,3 +125,12 @@ TEST(JsonDumper, ObjectNoWrap)
         "\"std_str\": \"std::string\", \"string_view\": \"sv\", \"arr\": [0,1,2,3,4]}}",
         ss.str());
 }
+
+TEST(JsonDumper, MemberInArray)
+{
+    std::ostringstream ss;
+    JsonDumper j(ss);
+    j.StartArray();
+    EXPECT_THROW(j.StartMember("test"), std::bad_function_call);
+    j.End();
+}

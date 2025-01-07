@@ -26,17 +26,6 @@ public:
     
     void SetWrap(bool _wrap = true) { state.wrap = _wrap; }
 
-    void NewLine()
-    {
-        if (!state.first_element && state.in_array) {
-            s << ",";
-        }
-        if (!state.wrap) {
-            s << std::endl;
-        }
-        state.first_element = true;
-    }
-
     JsonDumper& StartObject(bool is_array = false)
     {
         NextItem(true);
@@ -57,7 +46,7 @@ public:
     JsonDumper& StartMember(const char* name)
     {
         if (state.in_array) {
-            throw new std::bad_function_call();
+            throw std::bad_function_call();
         }
         if (!state.first_element) {
             s << ',';
