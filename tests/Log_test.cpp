@@ -3,6 +3,7 @@
 #include "LogBase.h"
 #include "gtest/gtest.h"
 #include "LogStorage.h"
+#include "LogOptions.h"
 
 #define TEST_FILE "/tmp/file_utils.tst"
 #define TEST_FILE_INVALID "/_##/"
@@ -67,10 +68,42 @@ TEST_F(TxLog, WriteLogLevels) {
 }
 
 
-//TEST(Log, LinesCount) {
-//    log_lines_count[LOG_ERR] = 0;
-//    log_write(LOG_LEVEL_ERR, "test");
-//    EXPECT_EQ(1u, log_lines_count[LOG_ERR]);
-//    log_write(LOG_LEVEL_ERR_ERRNO, "test");
-//    EXPECT_EQ(2u, log_lines_count[LOG_ERR]);
-//}
+TEST(Log, Options) {
+    bool handled = false;
+    EXPECT_EQ(ARGP_ERR_UNKNOWN, log_option_parse('l', const_cast<char*>("DEBUGX"), nullptr, handled));
+    EXPECT_EQ(ARGP_ERR_UNKNOWN, log_option_parse(OPT_LOG_SYSLOG_LEVEL, const_cast<char*>("DEBUGX"), nullptr, handled));
+    
+    auto save_opt_log_level = opt_log_level;
+    auto save_opt_log_level_to_syslog = opt_log_level_to_syslog;
+    auto save_opt_log_to_console = opt_log_to_console;
+    auto save_opt_log_no_colored = opt_log_no_colored;
+
+    opt_log_level = LOG_LEVEL_CRIT;
+    handled = false;
+    EXPECT_EQ(0, log_option_parse('l', const_cast<char*>("DEBUG"), nullptr, handled));
+    EXPECT_EQ(LOG_LEVEL_DEBUG, opt_log_level);
+    EXPECT_TRUE(handled);
+
+    opt_log_level_to_syslog = LOG_LEVEL_CRIT;
+    handled = false;
+    EXPECT_EQ(0, log_option_parse(OPT_LOG_SYSLOG_LEVEL, const_cast<char*>("DEBUG"), nullptr, handled));
+    EXPECT_EQ(LOG_LEVEL_DEBUG, opt_log_level_to_syslog);
+    EXPECT_TRUE(handled);
+
+    opt_log_no_colored = false;
+    handled = false;
+    EXPECT_EQ(0, log_option_parse(OPT_LOG_NO_COLORED, nullptr, nullptr, handled));
+    EXPECT_TRUE(opt_log_no_colored);
+    EXPECT_TRUE(handled);
+
+    handled = true;
+    EXPECT_EQ(0, log_option_parse('x', nullptr, nullptr, handled));
+    EXPECT_FALSE(handled);
+
+    opt_log_level = save_opt_log_level;
+    opt_log_level_to_syslog = save_opt_log_level_to_syslog;
+    opt_log_to_console = save_opt_log_to_console;
+    opt_log_no_colored = save_opt_log_no_colored;
+    opt_log_no_colored = false;
+
+}
