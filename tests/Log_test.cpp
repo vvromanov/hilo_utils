@@ -15,11 +15,11 @@ public:
     }
 };
 
-class TxLog : public ShmFileBase<LogTestData> {
+class Log : public ShmFileBase<LogTestData> {
 
 };
 
-TEST_F(TxLog, LevelToName) {
+TEST_F(Log, LevelToName) {
     EXPECT_STREQ("CRIT", log_level_to_name(LOG_LEVEL_CRIT));
     EXPECT_STREQ("ERRR", log_level_to_name(LOG_LEVEL_ERR));
     EXPECT_STREQ("WARN", log_level_to_name(LOG_LEVEL_WARNING));
@@ -38,7 +38,7 @@ static bool TestLogName(const char *name, log_level_t l) {
     return res & (l == tmp);
 }
 
-TEST_F(TxLog, NameToLevel) {
+TEST_F(Log, NameToLevel) {
     EXPECT_TRUE(TestLogName("EMRG", LOG_LEVEL_CRIT));
     EXPECT_TRUE(TestLogName("ALRT", LOG_LEVEL_CRIT));
     EXPECT_TRUE(TestLogName("CRIT", LOG_LEVEL_CRIT));
@@ -50,13 +50,13 @@ TEST_F(TxLog, NameToLevel) {
     EXPECT_TRUE(TestLogName("PARN", LOG_LEVEL_PARN));
 }
 
-TEST_F(TxLog, Write) {
+TEST_F(Log, Write) {
     ScopedLogLevel ll(LOG_LEVEL_INFO);
     EXPECT_TRUE(log_write_record(LOG_LEVEL_CRIT, "test", -1));
 }
 
 
-TEST_F(TxLog, WriteLogLevels) {
+TEST_F(Log, WriteLogLevels) {
     ScopedLogLevel ll(LOG_LEVEL_DISABLED);
     log_write(LOG_LEVEL_PARN, "Paranoid");
     log_write(LOG_LEVEL_DEBUG, "Debug");
@@ -68,7 +68,7 @@ TEST_F(TxLog, WriteLogLevels) {
 }
 
 
-TEST(Log, Options) {
+TEST_F(Log, Options) {
     bool handled = false;
     EXPECT_EQ(ARGP_ERR_UNKNOWN, log_option_parse('l', const_cast<char*>("DEBUGX"), nullptr, handled));
     EXPECT_EQ(ARGP_ERR_UNKNOWN, log_option_parse(OPT_LOG_SYSLOG_LEVEL, const_cast<char*>("DEBUGX"), nullptr, handled));
@@ -94,6 +94,12 @@ TEST(Log, Options) {
     handled = false;
     EXPECT_EQ(0, log_option_parse(OPT_LOG_NO_COLORED, nullptr, nullptr, handled));
     EXPECT_TRUE(opt_log_no_colored);
+    EXPECT_TRUE(handled);
+
+    opt_log_to_console = true;
+    handled = false;
+    EXPECT_EQ(0, log_option_parse('s', nullptr, nullptr, handled));
+    EXPECT_FALSE(opt_log_to_console);
     EXPECT_TRUE(handled);
 
     handled = true;
