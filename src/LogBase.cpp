@@ -37,8 +37,6 @@ const char *log_level_to_name(log_level_t level) {
             return "PARN";
         case LOG_LEVEL_DISABLED:
             return "DISABLED";
-        case LOG_LEVEL_RESERVED:
-            return "RESERVED";
     }
     return "???";
 }
@@ -46,7 +44,6 @@ const char *log_level_to_name(log_level_t level) {
 const char *log_level_to_color(log_level_t level) {
     switch (level) {
         case LOG_LEVEL_DISABLED:
-        case LOG_LEVEL_RESERVED:
         case LOG_LEVEL_CRIT:
         case LOG_LEVEL_CRIT_ERRNO:
             return ANSI_BOLD_YELLOW_ON_RED;

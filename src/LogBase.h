@@ -11,7 +11,6 @@
 
 typedef enum {
     LOG_LEVEL_DISABLED = 0,     /* Logging disabled */
-    LOG_LEVEL_RESERVED = 1,     /* reserved */
     LOG_LEVEL_CRIT = 2,         /* critical conditions */
     LOG_LEVEL_ERR = 3,          /* error conditions */
     LOG_LEVEL_WARNING = 4,      /* warning conditions */

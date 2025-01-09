@@ -20,6 +20,7 @@ class Log : public ShmFileBase<LogTestData> {
 };
 
 TEST_F(Log, LevelToName) {
+    EXPECT_STREQ("DISABLED", log_level_to_name(LOG_LEVEL_DISABLED));
     EXPECT_STREQ("CRIT", log_level_to_name(LOG_LEVEL_CRIT));
     EXPECT_STREQ("ERRR", log_level_to_name(LOG_LEVEL_ERR));
     EXPECT_STREQ("WARN", log_level_to_name(LOG_LEVEL_WARNING));
@@ -27,7 +28,7 @@ TEST_F(Log, LevelToName) {
     EXPECT_STREQ("INFO", log_level_to_name(LOG_LEVEL_INFO));
     EXPECT_STREQ("DEBG", log_level_to_name(LOG_LEVEL_DEBUG));
     EXPECT_STREQ("PARN", log_level_to_name(LOG_LEVEL_PARN));
-    EXPECT_STREQ("???", log_level_to_name((log_level_t) -1));
+    EXPECT_STREQ("???", log_level_to_name((log_level_t)-1));
 }
 
 static bool TestLogName(const char *name, log_level_t l) {
@@ -39,6 +40,7 @@ static bool TestLogName(const char *name, log_level_t l) {
 }
 
 TEST_F(Log, NameToLevel) {
+    EXPECT_TRUE(TestLogName("DISABLED", LOG_LEVEL_DISABLED));
     EXPECT_TRUE(TestLogName("EMRG", LOG_LEVEL_CRIT));
     EXPECT_TRUE(TestLogName("ALRT", LOG_LEVEL_CRIT));
     EXPECT_TRUE(TestLogName("CRIT", LOG_LEVEL_CRIT));
@@ -58,6 +60,7 @@ TEST_F(Log, Write) {
 
 TEST_F(Log, WriteLogLevels) {
     ScopedLogLevel ll(LOG_LEVEL_DISABLED);
+    log_write(LOG_LEVEL_DISABLED, "Disabled");
     log_write(LOG_LEVEL_PARN, "Paranoid");
     log_write(LOG_LEVEL_DEBUG, "Debug");
     log_write(LOG_LEVEL_INFO, "Info");
