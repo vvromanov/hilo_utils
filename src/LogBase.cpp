@@ -234,3 +234,14 @@ void log_writev(log_level_t level, const char *format, va_list ap) {
         in_log_writev = false;
     }
 }
+
+ScopedLogLevel::ScopedLogLevel(log_level_t level)
+{
+    prev_log_level = opt_log_level;
+    opt_log_level = (log_level_t)(level & LOG_LEVEL_MASK);
+}
+
+ScopedLogLevel::~ScopedLogLevel()
+{
+    opt_log_level = prev_log_level;
+}

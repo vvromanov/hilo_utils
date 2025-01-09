@@ -59,13 +59,7 @@ void log_write_str(log_level_t level, const char *string, int len);
 class ScopedLogLevel {
     log_level_t prev_log_level;
 public:
-    ScopedLogLevel(log_level_t level) {
-        prev_log_level = opt_log_level;
-        opt_log_level = (log_level_t)(level & LOG_LEVEL_MASK);
-    }
-
-    ~ScopedLogLevel() {
-        opt_log_level = prev_log_level;
-    }
+    ScopedLogLevel(log_level_t level);
+    ~ScopedLogLevel();
 };
 

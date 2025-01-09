@@ -113,3 +113,15 @@ TEST_F(Log, Options) {
     opt_log_no_colored = false;
 
 }
+
+TEST_F(Log, ScopedLogLevel)
+{
+    auto save_opt_log_level = opt_log_level;
+    EXPECT_NE(LOG_LEVEL_CRIT, opt_log_level);
+    {
+        ScopedLogLevel ll(LOG_LEVEL_CRIT);
+        EXPECT_EQ(LOG_LEVEL_CRIT, opt_log_level);
+    }
+    EXPECT_EQ(save_opt_log_level, opt_log_level);
+    opt_log_level = save_opt_log_level;
+}
