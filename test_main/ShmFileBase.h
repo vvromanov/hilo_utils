@@ -18,7 +18,6 @@ protected:
 
         filename = SHM_LOCATION;
         filename += shm_name;
-        shm_name = "/" + shm_name;
     }
 
     const char *TestFileName() const {

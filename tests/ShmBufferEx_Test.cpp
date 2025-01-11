@@ -567,3 +567,41 @@ TEST_F(ShmBufferExTest, GetPrev) {
     }
     EXPECT_EQ(count,test.Count());
 }
+
+TEST_F(ShmBufferExTest, CheckStatusNagios)
+{
+    ShmBufferEx test;
+    EXPECT_TRUE(test.Open(TestShmName(), TEST_SHM_SIZE));
+    EXPECT_TRUE(is_file_exists(TestFileName()));
+    {
+        std::ostringstream s;
+        EXPECT_EQ(status_ok, test.CheckStatus(s, status_nagios, false));
+        EXPECT_EQ("Queue test_shm_test 0% full\n", s.str());
+    }
+    {
+        std::ostringstream s;
+        fill_data(test);
+        EXPECT_EQ(status_critical, test.CheckStatus(s, status_nagios, false));
+        EXPECT_EQ("Queue test_shm_test 99% full\nQueue test_shm_test has errors in last 300 seconds\n", s.str());
+    }
+}
+
+TEST_F(ShmBufferExTest, CheckStatusSimple)
+{
+    ShmBufferEx test;
+    EXPECT_TRUE(test.Open(TestShmName(), TEST_SHM_SIZE));
+    EXPECT_TRUE(is_file_exists(TestFileName()));
+    {
+        std::ostringstream s;
+        EXPECT_EQ(status_ok, test.CheckStatus(s, status_nagios, false));
+        EXPECT_EQ("Queue test_shm_test 0% full\n", s.str());
+    }
+    
+    {
+        std::ostringstream s;
+        fill_data(test);
+        EXPECT_EQ(status_critical, test.CheckStatus(s, status_nagios, false));
+        EXPECT_EQ("Queue test_shm_test 99% full\nQueue test_shm_test has errors in last 300 seconds\n", s.str());
+    }
+}
+
