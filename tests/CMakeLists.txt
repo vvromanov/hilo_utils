@@ -22,6 +22,7 @@ add_executable(${TARGET}
     TestUptime.cpp
     ClockOverride.h
     JsonDumperTest.cpp
+    CommonUtilsTest.cpp
 )
 
 target_link_libraries(${TARGET}
