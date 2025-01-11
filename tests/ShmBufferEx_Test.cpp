@@ -483,6 +483,7 @@ static void fill_data(ShmBufferEx &test) {
         ShmTestData td(100 + rand() % 100, test.GetEndVptr());
         EXPECT_TRUE(test.Push(td.Data(), td.Size()));
     }
+    test.UpdateCounters();
 }
 
 

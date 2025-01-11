@@ -29,6 +29,7 @@ bool ShmBufferEx::Open(const char *name, size_t _size) {
     cUsed.SetName(cName, counter_value);
     snprintf(cName, sizeof(cName), BUFFER_EX_CNAME_CAPACITY, name);
     cCapacity.SetName(cName, counter_value);
+    UpdateCounters();
     return true;
 }
 
