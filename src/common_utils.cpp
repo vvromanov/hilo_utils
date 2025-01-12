@@ -5,28 +5,39 @@
 #include <cstdint>
 #include "LogBase.h"
 
+static bool valid_str(const char* s) {
+    if (s == nullptr) {
+        return false;
+    }
+    if (s[0] == '\0') {
+        return false;
+    }
+    return true;
+}
+
 #ifdef __CYGWIN__
 extern "C" {
     char *strptime(const char *__restrict, const char *__restrict, struct tm *__restrict);
 }
 #endif
 bool ConvertString(const char *data, bool &value) {
+    if (!valid_str(data)) {
+        return false;
+    }
     bool ok = false;
-    if (data && data[0] != 0) {
-        if (strcasecmp(data, "y") == 0 || strcasecmp(data, "1") == 0 || strcasecmp(data, "true") == 0 || strcasecmp(data, "on") == 0 || strcasecmp(data, "yes") == 0) {
-            value = true;
-            ok = true;
-        }
-        if (strcasecmp(data, "n") == 0 || strcasecmp(data, "0") == 0 || strcasecmp(data, "false") == 0|| strcasecmp(data, "off") == 0 || strcasecmp(data, "no") == 0) {
-            value = false;
-            ok = true;
-        }
+    if (strcasecmp(data, "y") == 0 || strcasecmp(data, "1") == 0 || strcasecmp(data, "true") == 0 || strcasecmp(data, "on") == 0 || strcasecmp(data, "yes") == 0) {
+        value = true;
+        ok = true;
+    }
+    if (strcasecmp(data, "n") == 0 || strcasecmp(data, "0") == 0 || strcasecmp(data, "false") == 0|| strcasecmp(data, "off") == 0 || strcasecmp(data, "no") == 0) {
+        value = false;
+        ok = true;
     }
     return ok;
 }
 
 bool ConvertStringHex(const char *s, uint64_t &value) {
-    if (NULL == s) {
+    if (!valid_str(s)) {
         return false;
     }
 
@@ -85,7 +96,7 @@ bool ConvertStringHex(const char *s, uint64_t &value) {
 }
 
 bool ConvertString(const char *s, uint64_t &value) {
-    if (NULL == s) {
+    if (!valid_str(s)) {
         return false;
     }
     if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
@@ -124,7 +135,7 @@ bool ConvertString(const char *s, uint64_t &value) {
 }
 
 bool ConvertString(const char *s, int64_t &value) {
-    if (NULL == s) {
+    if (!valid_str(s)) {
         return false;
     }
     if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
@@ -185,6 +196,9 @@ bool ConvertString(const char *s, int64_t &value) {
 }
 
 bool ConvertStringIp(const char *data, in_addr_t &ip_network) {
+    if (!valid_str(data)) {
+        return false;
+    }
     struct in_addr tmp;
     bool res = (1 == inet_pton(AF_INET, data, &tmp));
     ip_network = tmp.s_addr;
@@ -192,6 +206,9 @@ bool ConvertStringIp(const char *data, in_addr_t &ip_network) {
 }
 
 bool ConvertStringTime(const char *data, time_t &time) {
+    if (!valid_str(data)) {
+        return false;
+    }
     struct tm tm = { 0 };
     char *p;
     if (strlen(data) > 4 && data[4] == '-') {

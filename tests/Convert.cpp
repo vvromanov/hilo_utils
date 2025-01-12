@@ -4,12 +4,14 @@
 
 TEST(Convert, Ip) {
     uint32_t ip_network;
+    EXPECT_FALSE(ConvertStringIp(nullptr, ip_network));
     EXPECT_TRUE(ConvertStringIp("11.12.13.14", ip_network));
     EXPECT_EQ(CREATE_NETWORK_IP(11, 12, 13, 14), ip_network);
 }
 
 TEST(Convert, Int8) {
     int8_t v;
+    EXPECT_FALSE(ConvertString(nullptr, v));
     EXPECT_FALSE(ConvertString("", v));
     EXPECT_FALSE(ConvertString("-129", v));
     EXPECT_FALSE(ConvertString("128", v));
@@ -24,6 +26,7 @@ TEST(Convert, Int8) {
 
 TEST(Convert, UInt8) {
     uint8_t v;
+    EXPECT_FALSE(ConvertString(nullptr, v));
     EXPECT_FALSE(ConvertString("", v));
     EXPECT_FALSE(ConvertString("256", v));
     EXPECT_FALSE(ConvertString("-1", v));
@@ -36,6 +39,7 @@ TEST(Convert, UInt8) {
 
 TEST(Convert, Int16) {
     int16_t v;
+    EXPECT_FALSE(ConvertString(nullptr, v));
     EXPECT_FALSE(ConvertString("", v));
     EXPECT_FALSE(ConvertString("-327679", v));
     EXPECT_FALSE(ConvertString("32768", v));
@@ -50,6 +54,7 @@ TEST(Convert, Int16) {
 
 TEST(Convert, UInt16) {
     uint16_t v;
+    EXPECT_FALSE(ConvertString(nullptr, v));
     EXPECT_FALSE(ConvertString("", v));
     EXPECT_FALSE(ConvertString("65536", v));
     EXPECT_FALSE(ConvertString("-1", v));
@@ -62,6 +67,7 @@ TEST(Convert, UInt16) {
 
 TEST(Convert, Int32) {
     int32_t v;
+    EXPECT_FALSE(ConvertString(nullptr, v));
     EXPECT_FALSE(ConvertString("", v));
     EXPECT_FALSE(ConvertString("-2147483649", v));
     EXPECT_FALSE(ConvertString("2147483648", v));
@@ -76,6 +82,7 @@ TEST(Convert, Int32) {
 
 TEST(Convert, UInt32) {
     uint32_t v;
+    EXPECT_FALSE(ConvertString(nullptr, v));
     EXPECT_FALSE(ConvertString("", v));
     EXPECT_FALSE(ConvertString("4294967296", v));
     EXPECT_FALSE(ConvertString("-1", v));
@@ -94,6 +101,7 @@ TEST(Convert, UInt32) {
 
 TEST(Convert, Int64) {
     int64_t v;
+    EXPECT_FALSE(ConvertString(nullptr, v));
     EXPECT_FALSE(ConvertString("", v));
     EXPECT_FALSE(ConvertString("-", v));
     EXPECT_FALSE(ConvertString("-9223372036854775809", v));
@@ -119,6 +127,7 @@ TEST(Convert, Int64) {
 
 TEST(Convert, UInt64) {
     uint64_t v;
+    EXPECT_FALSE(ConvertString(nullptr, v));
     EXPECT_FALSE(ConvertString("", v));
     EXPECT_FALSE(ConvertString("-", v));
     EXPECT_FALSE(ConvertString("18446744073709551616", v));
@@ -153,6 +162,7 @@ TEST(Convert, UInt64) {
 
 TEST(Convert, Float32) {
     float v;
+    EXPECT_FALSE(ConvertString(nullptr, v));
     EXPECT_FALSE(ConvertString("", v));
     EXPECT_FALSE(ConvertString("1t", v));
     EXPECT_FALSE(ConvertString("1e1000", v));
@@ -167,6 +177,7 @@ TEST(Convert, Float32) {
 
 TEST(Convert, Float64) {
     double v;
+    EXPECT_FALSE(ConvertString(nullptr, v));
     EXPECT_FALSE(ConvertString("", v));
     EXPECT_FALSE(ConvertString("1t", v));
     EXPECT_FALSE(ConvertString("1e1000", v));
@@ -182,6 +193,7 @@ TEST(Convert, Float64) {
 
 TEST(Convert, Bool) {
     bool v;
+    EXPECT_FALSE(ConvertString(nullptr, v));
     EXPECT_TRUE(ConvertString("yes", v));
     EXPECT_TRUE(v);
     EXPECT_TRUE(ConvertString("true", v));
@@ -210,6 +222,7 @@ TEST(Convert, Time) {
 
     localtime_r(&t, &lt);
 
+    EXPECT_FALSE(ConvertStringTime(nullptr, v));
     EXPECT_TRUE(ConvertStringTime("0x1000", v));
     EXPECT_EQ(0x1000, v);
 
