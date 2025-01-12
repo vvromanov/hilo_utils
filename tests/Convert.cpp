@@ -173,6 +173,8 @@ TEST(Convert, Float32) {
     EXPECT_FLOAT_EQ(0.1, v);
     EXPECT_TRUE(ConvertString("1e2", v));
     EXPECT_FLOAT_EQ(100, v);
+    EXPECT_TRUE(ConvertString("  1e2", v));
+    EXPECT_FLOAT_EQ(100, v);
 }
 
 TEST(Convert, Float64) {
@@ -189,7 +191,6 @@ TEST(Convert, Float64) {
     EXPECT_TRUE(ConvertString("1e2", v));
     EXPECT_DOUBLE_EQ(100, v);
 }
-
 
 TEST(Convert, Bool) {
     bool v;

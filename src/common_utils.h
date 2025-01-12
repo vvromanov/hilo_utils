@@ -32,21 +32,16 @@
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
 
 template<typename T>
-bool ConvertString(const char *data, T &value) {
+bool ConvertString_(const char *data, T &value) {
     if (data == NULL) {
         return false;
     };
     while (isspace(*data)) {
         data++;
     };
-    T ret;
     std::istringstream iss(data);
-    if (strncasecmp(data, "0x", 2) == 0) {
-        iss.ignore(2);
-        iss >> std::hex >> ret;
-    } else {
-        iss >> std::dec >> ret;
-    }
+    T ret;
+    iss >> std::dec >> ret;
     if (iss.fail() || !iss.eof()) {
         return false;
     }
@@ -67,6 +62,15 @@ bool ConvertString(const char *s, uint32_t &value);
 bool ConvertString(const char *data, bool &value);
 bool ConvertStringIp(const char *data, in_addr_t &ip_network);
 bool ConvertStringTime(const char *data, time_t& time);
+
+static inline bool ConvertString(const char* s, float& value) {
+    return ConvertString_(s, value);
+}
+
+static inline bool ConvertString(const char* s, double& value)
+{
+    return ConvertString_(s, value);
+}
 
 // trim from start
 static inline std::string ltrim(const std::string &s) {
