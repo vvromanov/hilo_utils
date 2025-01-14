@@ -91,12 +91,12 @@ class HistoryCounter {
     HistoryCounterData *d = NULL;
     HistoryCounterType_t type;
 public:
-    HistoryCounter() {
-    }
+    HistoryCounter() = default;
 
-    HistoryCounter(const char *n, HistoryCounterType_t t) {
-        name = n;
-        type = t;
+    HistoryCounter(const char* n, HistoryCounterType_t t)
+        : name { n }
+        , type { t }
+    {
     }
 
     void SetName(const char *_name, HistoryCounterType_t t) {

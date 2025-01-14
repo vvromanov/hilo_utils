@@ -22,6 +22,101 @@ void HistoryCounterData::Clear() {
     started_ms = getTimeMs();
 }
 
+void HistoryCounterData::operator++()
+{
+    WRITE_LOCK;
+    update();
+    ++recs[rec_index].count;
+    ++total_count;
+    ++interval_count;
+}
+
+int64_t HistoryCounterData::GetTotalCount()
+{
+    WRITE_LOCK;
+    return total_count;
+}
+
+int64_t HistoryCounterData::GetTotalVolume()
+{
+    WRITE_LOCK;
+    return total_summ;
+}
+
+int64_t HistoryCounterData::GetIntervalCount()
+{
+    WRITE_LOCK;
+    update();
+    return interval_count;
+}
+
+int64_t HistoryCounterData::GetIntervalVolume()
+{
+    WRITE_LOCK;
+    update();
+    return interval_summ;
+}
+
+int64_t HistoryCounterData::GetLastCount()
+{
+    WRITE_LOCK;
+    update();
+    return recs[(rec_index == 0) ? HistorySize : (rec_index - 1)].count;
+}
+
+int64_t HistoryCounterData::GetLastAvg()
+{
+    WRITE_LOCK;
+    update();
+    const HistoryRec& rec = recs[(rec_index == 0) ? HistorySize : (rec_index - 1)];
+    if (rec.count == 0) {
+        return 0;
+    } else {
+        return rec.sum / rec.count;
+    }
+}
+
+int64_t HistoryCounterData::GetTotalAvg()
+{
+    WRITE_LOCK;
+    update();
+    if (total_count) {
+        return total_summ / total_count;
+    } else {
+        return 0;
+    }
+}
+
+int64_t HistoryCounterData::GetIntervalAvg()
+{
+    WRITE_LOCK;
+    update();
+    if (interval_count) {
+        return interval_summ / interval_count;
+    } else {
+        return 0;
+    }
+}
+
+int64_t HistoryCounterData::GetLastVolume()
+{
+    WRITE_LOCK;
+    update();
+    return recs[(rec_index == 0) ? HistorySize : (rec_index - 1)].sum;
+}
+
+void HistoryCounterData::GetInfo(history_counter_info_t& info)
+{
+    WRITE_LOCK;
+    int last_index = (rec_index == 0) ? HistorySize : (rec_index - 1);
+    info.last_count = recs[last_index].count;
+    info.last_summ = recs[last_index].sum;
+    info.interval_count = interval_count;
+    info.interval_summ = interval_summ;
+    info.total_count = total_count;
+    info.total_summ = total_summ;
+}
+
 void HistoryCounterData::update() {
     WRITE_LOCK;
     int64_t index = (getClockMs() / 1000);
