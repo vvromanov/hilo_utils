@@ -55,7 +55,6 @@ public:
         return GetData()->get_used_bp();
     }
 
-
 #ifdef FOR_TEST
 
     //Will be called only form tests
@@ -78,6 +77,11 @@ public:
             return GetData()->getRecord(vptr);
         }
 
+        void ClearCounters() {
+            cDropHistory.Clear();
+            cErrorHistory.Clear();
+            cMsgHistory.Clear();
+        }
 #endif
 
     void SetOverflovBehavior(on_overflov_t d, bool drop_is_ok) {

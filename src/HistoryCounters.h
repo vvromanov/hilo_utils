@@ -109,6 +109,12 @@ public:
         d = nullptr;
     }
 
+    void Clear()
+    {
+        Init();
+        d->Clear();
+    }
+
     void AddVolume(int64_t v) {
         Init();
         d->AddVolume(v);
